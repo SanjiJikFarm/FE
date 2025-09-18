@@ -10,10 +10,15 @@ jobs:
     container: pandoc/latex
     steps:
       - uses: actions/checkout@v4
-      - name: Install mustache (to update the date)
-        run: apk add ruby && gem install mustache
+
+      - name: Install dependencies
+        run: |
+          apk add --no-cache git ruby
+          gem install mustache
+
       - name: creates output
         run: sh ./build.sh
+
       - name: Push output folder to another repo with history
         run: |
           git config --global user.email "${{ secrets.ONLY1KSY_ACCOUNT_EMAIL }}"

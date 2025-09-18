@@ -2,30 +2,32 @@ name: git push into another repo to deploy to vercel
 
 on:
   push:
-    branches: [main]
+    branches: [main] # 원본 레포 main 브랜치에 push될 때 실행
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: pandoc/latex # pandoc/latex 컨테이너 사용 → LaTeX 미리 설치돼 있어서 빠름
     steps:
-      # 1. 레포 체크아웃 (히스토리 전체 필요 → fetch-depth: 0)
+      # 1. 레포 체크아웃 (전체 히스토리 필요 → fetch-depth: 0)
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # 2. 빌드 도구 설치 (pandoc, texlive, git, ruby, mustache)
-      - name: Install dependencies
+      # 2. 필요한 패키지 설치 (git, ruby, mustache)
+      # 컨테이너 기본에는 git이 없어서 꼭 추가해줘야 함
+      - name: Install git & mustache
         run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc texlive-latex-base texlive-xetex texlive-fonts-recommended
-          sudo apt-get install -y ruby-full git
+          apk add --no-cache git ruby
           gem install mustache
 
-      # 3. 빌드 실행
+      # 3. 빌드 실행 (output 폴더 생성)
       - name: creates output
         run: sh ./build.sh
 
-      # 4. output 폴더를 다른 repo에 push (히스토리 유지)
+      # 4. output 폴더를 target repo에 push
+      # git subtree split → output 폴더만 분리해서 push
+      # target repo: only1Ksy/Sanjijikfarm-Frontend (main 브랜치)
       - name: Push output folder to another repo with history
         run: |
           git config --global user.email "${{ secrets.ONLY1KSY_ACCOUNT_EMAIL }}"

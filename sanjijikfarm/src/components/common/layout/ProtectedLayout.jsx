@@ -5,14 +5,12 @@ import NavBar from './NavBar';
 
 export default function ProtectedLayout() {
   return (
-    <div className="h-[100dvh] w-full">
-      <div className="relative mx-auto h-full max-w-[var(--frame-width)] shadow">
-        <Header />
-        <main className="scrollbar-hide h-full w-full overflow-scroll pt-16 pb-16">
-          <Outlet />
-        </main>
-        <NavBar />
-      </div>
+    <div className="relative flex h-screen w-full max-w-[var(--frame-width)] flex-col shadow">
+      <Header />
+      <main className="scrollbar-hide flex-1 overflow-y-auto pt-16 pb-16">
+        <Outlet />
+      </main>
+      <NavBar />
     </div>
   );
 }

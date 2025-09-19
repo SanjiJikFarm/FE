@@ -8,7 +8,7 @@ export default function ProtectedLayout() {
     <div className="h-screen w-full">
       <div className="relative mx-auto h-full max-w-[var(--frame-width)] shadow">
         <Header />
-        <main className="h-full w-full pt-16 pb-16">
+        <main className="scrollbar-hide h-full w-full overflow-scroll pt-16 pb-16">
           <Outlet />
         </main>
         <NavBar />

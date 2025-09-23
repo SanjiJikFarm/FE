@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import debounce from 'lodash/debounce';
 
-import Map from '@/components/common/util/Map';
 import FoundNearStoreButton from '@/components/feature/localfood/FoundNearStoreButton';
 import LocalfoodModal from '@/components/feature/localfood/LocalfoodModal';
+import LocalfoodMap from '@/components/feature/localfood/map/Map';
 import SearchBar from '@/components/feature/localfood/SearchBar';
 
 export default function LocalfoodPage() {
@@ -152,7 +152,7 @@ export default function LocalfoodPage() {
 
   return (
     <div className="relative h-full w-full">
-      <Map />
+      <LocalfoodMap />
       <SearchBar
         keyword={inputValue}
         handleChange={handleChange}

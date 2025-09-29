@@ -6,14 +6,14 @@ import { useAuthStore } from './store';
 import { toHttpError } from './utils';
 
 export const axiosInstance = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:8080/api',
   headers: { 'Content-Type': 'application/json' },
-  withCredentials: true,
+  // withCredentials: true,
 });
 
 // 요청 인터셉터: accessToken 붙이기
 axiosInstance.interceptors.request.use((config) => {
-  const isAuthRequest = config.url?.includes('api/v1/auth/social/login') || config.url?.includes('api/v1/auth/refresh');
+  const isAuthRequest = config.url?.includes('api/auth/login') || config.url?.includes('api/auth/refresh');
 
   if (!isAuthRequest) {
     const { accessToken } = useAuthStore.getState();
@@ -53,3 +53,12 @@ axiosInstance.interceptors.response.use(
     throw toHttpError(error);
   },
 );
+
+// withErrorBoundary: 공통 에러 처리
+export async function withErrorBoundary(fn) {
+  try {
+    return await fn();
+  } catch (error) {
+    throw toHttpError(error);
+  }
+}

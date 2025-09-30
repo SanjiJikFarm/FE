@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { uploadReceiptToOCR } from '@/api/receipt/receipt';
 import { useAuthStore } from '@/api/axios/store';
-const { username } = useAuthStore.getState();
-console.log(username);
 
 export default function ReceiptUploadPage() {
   const [image, setImage] = useState(null);

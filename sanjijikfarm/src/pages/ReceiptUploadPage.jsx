@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { uploadReceiptToOCR } from '@/api/receipt/receipt';
+import { useAuthStore } from '@/api/axios/store';
+const { username } = useAuthStore.getState();
+console.log(username);
 
 export default function ReceiptUploadPage() {
   const [image, setImage] = useState(null);
@@ -14,21 +18,32 @@ export default function ReceiptUploadPage() {
     reader.readAsDataURL(file);
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!image) {
       alert('이미지를 먼저 선택해주세요!');
       return;
     }
 
-    // TODO: 업로드 API 연동
-    console.log('업로드 시작:', image);
+    try {
+      const base64Image = image.split(',')[1];
+      const { username } = useAuthStore.getState();
+
+      const data = await uploadReceiptToOCR(base64Image, username);
+
+      console.log('OCR 결과:', data);
+      alert('업로드가 완료되었습니다!');
+    } catch (err) {
+      console.error('OCR 업로드 실패:', err);
+      alert(err.message || 'OCR 요청 중 오류가 발생했습니다.');
+    }
   };
+
 
   return (
     <div className="mx-auto w-full max-w-md px-4 py-8">
       <h1 className="text-title-3 mb-5 text-center font-bold">영수증 업로드</h1>
 
-      {/* 이미지 업로드 박스 (작게!) */}
+      {/* 이미지 업로드 박스 */}
       <div className="relative mx-auto mb-6 flex h-[400px] w-[230px] items-center justify-center overflow-hidden rounded-md border-2 border-dashed bg-gray-100">
         {image ? (
           <>

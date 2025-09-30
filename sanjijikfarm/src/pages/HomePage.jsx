@@ -9,14 +9,6 @@ export default function HomePage() {
     { url: 'https://via.placeholder.com/600x300', main: 'Main Title', sub: 'Sub Title goes here' },
   ];
 
-  const TEMP_FOOD_IMAGES = [
-    'https://via.placeholder.com/',
-    'https://via.placeholder.com/',
-    'https://via.placeholder.com/',
-    'https://via.placeholder.com/',
-    'https://via.placeholder.com/',
-  ];
-
   const TEMP_DECREASE_AMOUNT = 50;
 
   const month = new Date().getMonth();
@@ -28,7 +20,7 @@ export default function HomePage() {
       </div>
       <div className="flex flex-col items-center gap-4">
         <span className="text-heading-1 font-bold">{month + 1}월의 식재료 추천</span>
-        <FoodSlider images={TEMP_FOOD_IMAGES} />
+        <FoodSlider month={month + 1} />
       </div>
       <MainDecreaseAmount amount={TEMP_DECREASE_AMOUNT} />
     </div>

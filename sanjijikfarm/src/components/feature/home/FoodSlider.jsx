@@ -1,10 +1,35 @@
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 
+import { useQuery } from '@tanstack/react-query';
 import { Autoplay, EffectCoverflow } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-export default function FoodSlider({ images }) {
+import { getRecommendedFoods } from '@/api/home/FoodController';
+import mockData from '@/lib/mock/FoodMockData.json';
+
+export default function FoodSlider({ month }) {
+  const {
+    data: foods = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['recommendedFoods', month],
+    queryFn: () => getRecommendedFoods(month),
+    enabled: !!month,
+  });
+
+  if (isLoading) return null;
+
+  // foods에서 imageUrl만 뽑아 images 배열 생성
+  const images =
+    !error && foods.length > 0
+      ? foods.map((food) => ({
+          url: food.imageUrl,
+          name: food.foodName,
+        }))
+      : mockData;
+
   return (
     <Swiper
       effect="coverflow"
@@ -31,7 +56,7 @@ export default function FoodSlider({ images }) {
           <img
             src={img.url}
             className="bg-pale-green block h-full w-full rounded-lg object-cover"
-            alt={`Main Slide ${index + 1}`}
+            alt={`Main Slide ${index + 1} - ${img.name}`}
           />
         </SwiperSlide>
       ))}

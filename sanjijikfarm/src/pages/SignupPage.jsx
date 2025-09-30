@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { login, register } from '@/api/axios/auth';
+
 export default function SignupPage() {
   const navigate = useNavigate();
 
@@ -8,14 +10,15 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
 
   const onSubmit = async (e) => {
-    try {
-      e.preventDefault();
-      // TODO: 회원가입 -> 로그인 API 호출
+    e.preventDefault();
 
-      //  회원가입 및 로그인 성공 시 홈으로 이동
+    try {
+      await register(id, 'winterksy@example.com', password);
+      await login(id, password);
+      alert('회원가입 및 로그인에 성공하였습니다.');
       navigate('/home');
-    } catch {
-      alert('회원가입에 실패하였습니다.');
+    } catch (err) {
+      console.log(err.message || '회원가입/로그인 실패!');
     }
   };
 

@@ -18,6 +18,10 @@ export const login = (username, password) =>
 
     if (data.success && data.token && data.refreshToken) {
       useAuthStore.getState().setTokens(data.token, data.refreshToken);
+      useAuthStore.getState().setUsername(username);
+    }
+    if (data.username) {
+      useAuthStore.getState().setUsername(data.username);
     }
     return data;
   });

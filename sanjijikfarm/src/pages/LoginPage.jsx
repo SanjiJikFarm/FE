@@ -48,7 +48,10 @@ export default function LoginPage() {
         {/* 로그인 버튼 */}
         <button
           type="submit"
-          className="bg-main-green w-full rounded-md py-2 font-semibold text-white hover:bg-green-600"
+          disabled={!id || !password}
+          className={`w-full rounded-md py-2 font-semibold text-white ${
+            !id || !password ? 'cursor-not-allowed bg-gray-400' : 'bg-main-green hover:bg-green-600'
+          }`}
         >
           로그인
         </button>

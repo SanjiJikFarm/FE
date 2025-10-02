@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { uploadReceiptToOCR } from '@/api/receipt/receipt';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuthStore } from '@/api/axios/store';
+import { saveReceipt, uploadReceiptToOCR } from '@/api/receipt/receipt';
 
 export default function ReceiptUploadPage() {
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false); // 로딩 상태 추가
+  const navigate = useNavigate();
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -22,20 +26,33 @@ export default function ReceiptUploadPage() {
       return;
     }
 
+    setLoading(true);
     try {
       const base64Image = image.split(',')[1];
       const { username } = useAuthStore.getState();
 
-      const data = await uploadReceiptToOCR(base64Image, username);
+      // 서버리스 OCR 호출
+      const parsed = await uploadReceiptToOCR(base64Image, username);
 
-      console.log('OCR 결과:', data);
-      alert('업로드가 완료되었습니다!');
+      // 백엔드에 저장
+      const saved = await saveReceipt(parsed, username);
+
+      // 로컬에 receiptId 저장
+      const prev = JSON.parse(localStorage.getItem('receiptIds') || '[]');
+      const updated = [...prev, saved.receiptId];
+      localStorage.setItem('receiptIds', JSON.stringify(updated));
+
+      alert('영수증이 성공적으로 저장되었습니다!');
+
+      // 상세 페이지로 이동
+      navigate(`/receipt/${saved.receiptId}`);
     } catch (err) {
-      console.error('OCR 업로드 실패:', err);
-      alert(err.message || 'OCR 요청 중 오류가 발생했습니다.');
+      console.error('영수증 업로드/저장 실패:', err);
+      alert(err.message || '영수증 처리 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
     }
   };
-
 
   return (
     <div className="mx-auto w-full max-w-md px-4 py-8">
@@ -59,13 +76,17 @@ export default function ReceiptUploadPage() {
         )}
       </div>
 
-      {/* 업로드 버튼 */}
-      <button
-        onClick={handleUpload}
-        className="bg-main-green mx-auto block w-[80%] rounded-md py-2 text-white transition hover:bg-green-600"
-      >
-        업로드 하기
-      </button>
+      {/* 업로드 버튼 or 로딩 메시지 */}
+      {loading ? (
+        <p className="text-center text-gray-600">영수증을 분석 중입니다...</p>
+      ) : (
+        <button
+          onClick={handleUpload}
+          className="bg-main-green mx-auto block w-[80%] rounded-md py-2 text-white transition hover:bg-green-600"
+        >
+          업로드 하기
+        </button>
+      )}
     </div>
   );
 }

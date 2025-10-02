@@ -1,18 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+
+import { useAuthStore } from '@/api/axios/store';
+import { getReceiptDetail } from '@/api/receipt/receipt';
 
 import ItemCard from '../components/feature/Receipt/ItemCard';
 import ReviewModal from '../components/feature/Receipt/ReviewModal';
 
 export default function ReceiptDetail() {
   const { id } = useParams();
+  const { username } = useAuthStore.getState();
+  const [receipt, setReceipt] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
+  useEffect(() => {
+    const fetchReceipt = async () => {
+      try {
+        const data = await getReceiptDetail(username, id);
+
+        setReceipt(data);
+      } catch (err) {
+        console.error('상세 영수증 불러오기 실패:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReceipt();
+  }, [id, username]);
+
   const handleOpenModal = (item) => {
     setSelectedItem(item);
-    setIsEditMode(!!item.rating); // 별점 있으면 수정 모드
+    setIsEditMode(!!item.rating);
     setIsModalOpen(true);
   };
 
@@ -21,62 +44,25 @@ export default function ReceiptDetail() {
     setIsModalOpen(false);
   };
 
-  const dummyReceipt = {
-    id: id,
-    date: '2025.07.31.',
-    store: '김포로컬푸드 공동판매장',
-    address: '경기도 김포시 김포대로 1009-51',
-    ceo: '정완철',
-    phone: '031-981-8456',
-    bizNo: '402-82-00347',
-    items: [
-      { name: 'P딸기(이현) 로컬푸드', code: '2100032732783', price: 4000, qty: 1, total: 4000 },
-      { name: 'P딸기(이현) 로컬푸드', code: '2100032732783', price: 4000, qty: 1, total: 4000 },
-      { name: 'P딸기(이현) 로컬푸드', code: '2100032732783', price: 4000, qty: 1, total: 4000, rating: 3.8 },
-      { name: 'P딸기(이현) 로컬푸드', code: '2100032732783', price: 4000, qty: 1, total: 4000, rating: 3.8 },
-      { name: 'P딸기(이현) 로컬푸드', code: '2100032732783', price: 4000, qty: 1, total: 4000, rating: 3.8 },
-    ],
-    summary: {
-      total: 18460,
-    },
-  };
+  if (loading) return <p className="py-10 text-center">로딩 중...</p>;
+  if (!receipt) return <p className="py-10 text-center">영수증을 불러오지 못했습니다.</p>;
 
   return (
     <div className="h-screen overflow-hidden bg-white">
       {isModalOpen && <ReviewModal item={selectedItem} onClose={handleCloseModal} isEditMode={isEditMode} />}
+
       <div className="scrollbar-hide max-h-[calc(100vh-120px)] overflow-y-auto px-4 py-3">
         <div className="mb-6 border-b border-gray-300 py-3 text-sm text-gray-800">
-          <p className="text-body-2-med text-center text-gray-600">{dummyReceipt.date}</p>
-          <div className="mb-4 border-b border-gray-300 pb-4">
-            <p className="text-title-3 text-center font-bold">{dummyReceipt.store}</p>
+          <p className="text-body-2-med text-center text-gray-600">{receipt.date}</p>
+          <div className="pb-4">
+            <p className="text-title-3 text-center font-bold">{receipt.storeName}</p>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <span className="text-body-2-med w-[5rem] shrink-0 text-gray-700">주소</span>
-              <span className="text-body-2-med text-gray-700">{dummyReceipt.address}</span>
-            </div>
-
-            <div className="flex justify-between gap-4">
-              <div className="flex gap-2">
-                <span className="text-body-2-med w-[5rem] shrink-0 text-gray-700">대표</span>
-                <span className="text-body-2-med text-gray-700">{dummyReceipt.ceo}</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="text-body-2-med shrink-0 text-gray-700">전화</span>
-                <span className="text-body-2-med text-gray-700">{dummyReceipt.phone}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <span className="text-body-2-med w-[5rem] shrink-0 text-gray-700">사업자번호</span>
-              <span className="text-body-2-med text-gray-700">{dummyReceipt.bizNo}</span>
-            </div>
-          </div>
+          {/* 기타 정보는 필요시 추가 */}
         </div>
 
         <div className="mb-8 space-y-3">
-          {dummyReceipt.items.map((item, i) => (
+          {receipt.itemList.map((item, i) => (
             <ItemCard
               key={i}
               {...item}
@@ -91,7 +77,7 @@ export default function ReceiptDetail() {
         </div>
 
         <div className="mt-6 border-t border-gray-300">
-          <SummaryRow label="총구매액" value={dummyReceipt.summary.total} />
+          <SummaryRow label="총구매액" value={receipt.totalAmount} />
         </div>
       </div>
     </div>
@@ -103,7 +89,7 @@ function SummaryRow({ label, value }) {
     <div className="text-body-2-med flex items-center justify-end gap-2 px-2 py-4 text-gray-700">
       <span>{label}</span>
       <div className="h-[14px] w-[1px] bg-gray-300" />
-      <span>{value.toLocaleString()}</span>
+      <span>{Number(value).toLocaleString()}원</span>
     </div>
   );
 }

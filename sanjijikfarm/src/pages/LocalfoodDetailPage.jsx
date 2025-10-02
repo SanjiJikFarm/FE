@@ -1,5 +1,9 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
+import { getShopProductList } from '@/api/localfood/ProductController';
+import { getShopDetail } from '@/api/localfood/ShopController';
 import LocalfoodEmptyCard from '@/components/common/empty/LocalfoodEmptyCard';
 import LikeLocalfoodCard from '@/components/common/like/LikeLocalfoodCard';
 import ReviewCard from '@/components/common/review/ReviewCard';
@@ -7,68 +11,98 @@ import LocalfoodDetailToggle from '@/components/feature/localfood/localfood-deta
 import UpperLocafoodInfo from '@/components/feature/localfood/localfood-detail/UpperLocafoodInfo';
 
 export default function LocalfoodDetailPage() {
+  // URL 파라미터에서 shopId 추출
+  const { id } = useParams();
   const [activeTab, setActiveTab] = useState('menu');
 
+  const {
+    data: shopDetail,
+    isLoading: isShopDetailLoading,
+    error: shopDetailError,
+  } = useQuery({
+    queryKey: ['shopDetail', id],
+    queryFn: () => getShopDetail(id),
+    enabled: !!id, // id가 있을 때만 쿼리 실행
+  });
+
+  const {
+    data: shopProducts = [],
+    isLoading: isShopProductsLoading,
+    error: shopProductsError,
+  } = useQuery({
+    queryKey: ['shopProducts', id],
+    queryFn: () => getShopProductList(id),
+    enabled: !!id, // id가 있을 때만 쿼리 실행
+  });
+
+  // if (isLoading) return <div>Loading...</div>;
+  // if (error) return <div>Error loading shop details.</div>;
+  // if (!shopDetail) return <div>No shop details found.</div>;
+
+  console.log(shopDetail, shopProducts);
+  console.log('isLoading:', isShopDetailLoading, isShopProductsLoading);
+  console.log('error:', shopDetailError, shopProductsError);
+
   const TEMP_LOCALFOOD_DETAIL = {
-    id: 1,
-    name: '김포로컬푸트 공동판매장',
-    rating: 3.8,
+    shopId: 1,
+    shopName: '김포로컬푸트 공동판매장',
+    averageRating: 3.8,
     reviewCount: 37,
     address: '경기도 김포시',
-    url: 'https://via.placeholder.com/',
+    shopImage: 'https://via.placeholder.com/',
     phone: '010-1234-5678',
   };
 
   const TEMP_MENU_LIST = [
     {
-      id: 1,
-      name: '사과',
-      price: 3000,
-      hasNoReview: false,
-      rating: 4.2,
-      likeCount: 45,
-      isLiked: true,
-      url: 'https://via.placeholder.com/150',
+      productId: 1,
+      productName: '사과',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 3000,
+      reviewCount: 0,
+      averageRating: 4.2,
+      productLike: 45,
+      liked: true,
     },
     {
-      id: 2,
-      name: '배',
-      price: 4000,
-      hasNoReview: false,
-      rating: 4.0,
-      likeCount: 30,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
+      productId: 2,
+      productName: '배',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 4000,
+      reviewCount: 30,
+      averageRating: 4.0,
+      productLike: 20,
+      liked: false,
     },
     {
-      id: 3,
-      name: '감',
-      price: 5000,
-      hasNoReview: false,
-      rating: 3.8,
-      likeCount: 22,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
+      productId: 3,
+      productName: '감',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 5000,
+      reviewCount: 20,
+      averageRating: 3.8,
+      productLike: 15,
+      liked: false,
     },
     {
-      id: 4,
-      name: '귤',
-      price: 6000,
-      hasNoReview: false,
-      rating: 4.5,
-      likeCount: 60,
-      isLiked: true,
-      url: 'https://via.placeholder.com/150',
+      productId: 4,
+      productName: '포도',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 6000,
+      reviewCount: 25,
+      averageRating: 4.5,
+      productLike: 30,
+      liked: true,
     },
     {
-      id: 5,
-      name: '포도',
-      price: 7000,
-      hasNoReview: false,
-      rating: 4.1,
-      likeCount: 38,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
+      productId: 5,
+      productName: '딸기',
+      productImage: 'https://via.placeholder.com/150',
+      productPrice: 7000,
+      reviewCount: 40,
+      averageRating: 4.7,
+      productLike: 50,
+      liked: true,
     },
   ];
 
@@ -112,7 +146,7 @@ export default function LocalfoodDetailPage() {
       <div className="scrollbar-hide flex flex-grow flex-col overflow-scroll">
         {activeTab === 'menu' ? (
           TEMP_MENU_LIST.length > 0 ? (
-            TEMP_MENU_LIST.map((localfood) => <LikeLocalfoodCard key={localfood.id} localfood={localfood} />)
+            TEMP_MENU_LIST.map((localfood) => <LikeLocalfoodCard key={localfood.productId} localfood={localfood} />)
           ) : (
             <LocalfoodEmptyCard text="아직 등록된 메뉴가 없습니다." />
           )

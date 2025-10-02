@@ -6,7 +6,7 @@ export const uploadReceiptToOCR = (imageBase64, username) =>
     const res = await axiosInstance.post(
       'https://tqs0vow7qk.apigw.ntruss.com/custom/v1/ocr',
       { imageBase64, username },
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } },
     );
     return res.data;
   });

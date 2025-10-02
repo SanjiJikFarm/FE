@@ -24,7 +24,7 @@ export default function LikeLocalfoodCard({ localfood }) {
         <div className="text-body-2-med flex flex-col items-end justify-between font-medium">
           <div className="text-main-brown flex items-center gap-0.5">
             <StarIcon />
-            <span>{localfood.rating}</span>
+            <span>{localfood.averageRating?.toFixed(1)}</span>
           </div>
           <button
             className={clsx(

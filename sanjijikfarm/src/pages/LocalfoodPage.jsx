@@ -9,6 +9,15 @@ import SearchBar from '@/components/feature/localfood/SearchBar';
 export default function LocalfoodPage() {
   const [filter, setFilter] = useState('거리순');
 
+  // 모달에 표시할 리스트
+  // const [shopList, setShopList] = useState([]);
+
+  // 마커 클릭 시 선택된 매장
+  const [selectedShop, setSelectedShop] = useState(null);
+
+  // 지도 센터 좌표
+  const [center, setCenter] = useState({ lat: 33.450701, lng: 126.570667 }); // 기본값: 제주 좌표
+
   const [openSheet, setOpenSheet] = useState(false);
 
   // 입력창에 보여줄 바로 반응하는 상태
@@ -60,90 +69,105 @@ export default function LocalfoodPage() {
 
   // 인근 매장 찾기 버튼 클릭
   const handleFindNearbyStores = () => {
-    console.log('Finding nearby stores...');
-    // TODO: 인근 매장 찾기 API 호출
+    /*
+    try {
+     const response = await getNearbyShopsAPI(); // TODO: 실제 API
+     setShopList(response);
+
+    if (response.length > 0) {
+      setCenter({ lat: response[0].lat, lng: response[0].lng }); // 지도 중심 이동
+    }
+  } catch (e) {
+    console.error(e);
+  }*/
+  };
+
+  // 마커 클릭 이벤트
+  const handleMarkerClick = (shop) => {
+    setSelectedShop(shop); // 선택한 매장 정보 저장
+    setOpenSheet(true); // 모달 열기
   };
 
   const TEMP_LOCALFOOD_SHOP_LIST = [
     {
-      id: 1,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 1,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 2,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 2,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 3,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 3,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 4,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 4,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 5,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 5,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 6,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 6,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 7,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 7,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 8,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 8,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 9,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 9,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
     {
-      id: 10,
-      name: '김포로컬푸트 공동판매장',
-      rating: 3.8,
+      shopId: 10,
+      shopName: '김포로컬푸트 공동판매장',
+      averageRating: 3.8,
       reviewCount: 37,
       address: '경기도 김포시',
-      url: 'https://via.placeholder.com/',
+      shopImage: 'https://via.placeholder.com/',
     },
   ];
 
@@ -152,7 +176,7 @@ export default function LocalfoodPage() {
 
   return (
     <div className="relative h-full w-full">
-      <LocalfoodMap />
+      <LocalfoodMap handleMarkerClick={handleMarkerClick} center={center} setCenter={setCenter} />
       <SearchBar
         keyword={inputValue}
         handleChange={handleChange}
@@ -162,8 +186,11 @@ export default function LocalfoodPage() {
       <FoundNearStoreButton onClick={() => handleFindNearbyStores} />
       <LocalfoodModal
         open={openSheet}
-        onClose={() => setOpenSheet(false)}
-        shopList={TEMP_LOCALFOOD_SHOP_LIST}
+        onClose={() => {
+          setOpenSheet(false);
+          setSelectedShop(null);
+        }}
+        shopList={selectedShop ? [selectedShop] : TEMP_LOCALFOOD_SHOP_LIST}
         filter={filter}
         toggleFilter={toggleFilter}
       />

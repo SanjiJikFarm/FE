@@ -32,21 +32,23 @@ export const saveReceipt = (parsedData, username) =>
   });
 
 // 영수증 요약 가져오기
-export const getReceiptSummary = async (receiptId) => {
-  const res = await axiosInstance.get(`/receipt/${receiptId}/summary`);
-  return res.data;
-};
+export const getReceiptSummary = (receiptId) =>
+  withErrorBoundary(async () => {
+    const res = await axiosInstance.get(`/receipt/${receiptId}/summary`);
+    return res.data;
+  });
 
 // 개별 영수증 상세 정보 불러오기
-export const getReceiptDetail = async (username, receiptId) => {
-  const res = await axiosInstance.get(`/receipt/receiptList?username=${username}`);
-  const list = res.data;
-
-  return list.find((r) => r.receiptId === Number(receiptId));
-};
+export const getReceiptDetail = (username, receiptId) =>
+  withErrorBoundary(async () => {
+    const res = await axiosInstance.get(`/receipt/receiptList?username=${username}`);
+    const list = res.data;
+    return list.find((r) => r.receiptId === Number(receiptId));
+  });
 
 // 영수증 전체 목록 조회
-export const getReceiptList = async (username) => {
-  const res = await axiosInstance.get(`/receipt/receiptList?username=${username}`);
-  return res.data;
-};
+export const getReceiptList = (username) =>
+  withErrorBoundary(async () => {
+    const res = await axiosInstance.get(`/receipt/receiptList?username=${username}`);
+    return res.data;
+  });

@@ -1,43 +1,93 @@
+import { useEffect, useState } from 'react';
 import { Map, MapMarker } from 'react-kakao-maps-sdk';
-import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
-export default function LocalfoodMap() {
-  const navigate = useNavigate();
+import { getShopList } from '@/api/localfood/ShopController';
+import KakaoGeocoder from '@/lib/utils/KakaoGeocoder';
 
-  const onMarkerClick = (id) => {
-    navigate(`/localfood/${id}`);
-  };
+export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
+  const [fixedShopList, setfixedShopList] = useState([]);
 
-  const TEMP_SHOP_LIST = [
+  const {
+    data: shopList = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['shopList'],
+    queryFn: () => getShopList(),
+  });
+
+  const TEMPLIST = [
     {
       id: 1,
-      title: '카카오',
-      latlng: { lat: 33.450705, lng: 126.570677 },
+      shopName: '매장1',
+      shopImage: '',
+      address: '제주특별자치도 제주시 첨단로 242',
+      averageRating: 4.5,
+      reviewCount: 120,
     },
     {
       id: 2,
-      title: '생태연못',
-      latlng: { lat: 33.450936, lng: 126.569477 },
+      shopName: '매장2',
+      shopImage: '',
+      address: '제주특별자치도 제주시 아라일동 1',
+      averageRating: 4.2,
+      reviewCount: 85,
     },
     {
       id: 3,
-      title: '텃밭',
-      latlng: { lat: 33.450879, lng: 126.56994 },
-    },
-    {
-      id: 4,
-      title: '근린공원',
-      latlng: { lat: 33.451393, lng: 126.570738 },
+      shopName: '매장3',
+      shopImage: '',
+      address: '제주특별자치도 제주시 산천단동3길 2',
+      averageRating: 4.8,
+      reviewCount: 200,
     },
   ];
 
+  useEffect(() => {
+    if (TEMPLIST.length > 0) {
+      Promise.all(
+        TEMPLIST.map(async (shop) => {
+          // 주소로 좌표 변환
+          const coords = await KakaoGeocoder(shop.address);
+          console.log(coords);
+          return {
+            shopId: shop.shopId,
+            shopName: shop.shopName,
+            shopImage: shop.shopImage,
+            address: shop.address,
+            latlng: coords,
+            averageRating: shop.averageRating,
+            reviewCount: shop.reviewCount,
+          };
+        }),
+        // 모든 주소 변환이 완료되면 fixedShopList 상태 업데이트 (필요 없는 값은 필터링: null 방지)
+      ).then((results) => setfixedShopList(results.filter(Boolean)));
+    }
+  }, [shopList]);
+
+  // 유저 현재 위치 가져오기
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setCenter({ lat: latitude, lng: longitude }); // 현재 위치로 지도 중심 변경
+        },
+        (err) => {
+          console.error('위치 가져오기 실패:', err);
+          // 실패 시 기본 좌표 그대로 둠
+        },
+      );
+    }
+  }, []);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading shop data.</div>;
+
   return (
     <Map // 지도를 표시할 Container
-      center={{
-        // 지도의 중심좌표
-        lat: 33.450701,
-        lng: 126.570667,
-      }}
+      center={center} // 유저 현재 위치 or 기본값
       style={{
         // 지도의 크기
         width: '100%',
@@ -45,10 +95,10 @@ export default function LocalfoodMap() {
       }}
       level={4} // 지도의 확대 레벨
     >
-      {TEMP_SHOP_LIST.map((position) => (
+      {fixedShopList.map((shop) => (
         <MapMarker // 마커를 생성합니다
-          key={`${position.title}-${position.latlng}`}
-          position={position.latlng} // 마커를 표시할 위치
+          key={`${shop.title}-${shop.latlng}`}
+          position={shop.latlng} // 마커를 표시할 위치
           image={{
             src: '/icons/map-marker.svg',
             size: {
@@ -56,7 +106,7 @@ export default function LocalfoodMap() {
               height: 33,
             },
           }}
-          onClick={() => onMarkerClick(position.id)}
+          onClick={() => handleMarkerClick(shop)}
         />
       ))}
     </Map>

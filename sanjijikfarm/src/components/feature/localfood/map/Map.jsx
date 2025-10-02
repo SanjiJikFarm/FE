@@ -19,7 +19,7 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
 
   const TEMPLIST = [
     {
-      id: 1,
+      shopId: 1,
       shopName: '매장1',
       shopImage: '',
       address: '제주특별자치도 제주시 첨단로 242',
@@ -27,7 +27,7 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
       reviewCount: 120,
     },
     {
-      id: 2,
+      shopId: 2,
       shopName: '매장2',
       shopImage: '',
       address: '제주특별자치도 제주시 아라일동 1',
@@ -35,7 +35,7 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
       reviewCount: 85,
     },
     {
-      id: 3,
+      shopId: 3,
       shopName: '매장3',
       shopImage: '',
       address: '제주특별자치도 제주시 산천단동3길 2',

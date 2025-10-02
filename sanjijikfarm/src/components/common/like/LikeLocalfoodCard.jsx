@@ -11,10 +11,10 @@ export default function LikeLocalfoodCard({ localfood }) {
       <div className="flex flex-grow justify-between">
         <div className="flex flex-col justify-between">
           <div className="flex flex-col gap-0.5 pl-0.5">
-            <span className="text-body-1 font-bold">{localfood.name}</span>
-            <span className="text-body-2 font-semibold">{localfood.price.toLocaleString()}</span>
+            <span className="text-body-1 font-bold">{localfood.productName}</span>
+            <span className="text-body-2 font-semibold">{localfood.productPrice?.toLocaleString()}</span>
           </div>
-          {localfood.hasNoReview && (
+          {localfood.reviewCount === 0 && (
             <div className="flex items-center gap-0.5">
               <CautionIcon />
               <span className="text-body-2-med font-medium">한 달 동안 리뷰 없었음</span>
@@ -29,17 +29,17 @@ export default function LikeLocalfoodCard({ localfood }) {
           <button
             className={clsx(
               'flex cursor-pointer items-center gap-0.5 rounded-3xl border px-1',
-              localfood.isLiked ? 'bg-main-green text-white' : 'border-gray-7 text-gray-7 hover:bg-gray-1',
+              localfood.liked ? 'bg-main-green text-white' : 'border-gray-7 text-gray-7 hover:bg-gray-1',
             )}
           >
-            {localfood.likeCount}
+            {localfood.productLike}
             <HeartIcon />
           </button>
         </div>
       </div>
       {/* right section - image */}
       <div className="bg-pale-green h-20 w-20">
-        <img className="h-full w-full object-cover" src={localfood.url} alt="localfood img" />
+        <img className="h-full w-full object-cover" src={localfood.productImage} alt="localfood img" />
       </div>
     </div>
   );

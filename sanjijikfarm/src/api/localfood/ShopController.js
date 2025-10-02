@@ -2,7 +2,7 @@ import { axiosInstance } from '../axios/axios';
 import { withErrorBoundary } from '../axios/axios';
 
 /** 전체 매장 리스트를 조회하는 함수 */
-export const getShopLists = () =>
+export const getShopList = () =>
   withErrorBoundary(async () => {
     const res = await axiosInstance.get('/shops');
     return res.data;

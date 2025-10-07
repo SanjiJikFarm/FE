@@ -3,8 +3,12 @@ import clsx from 'clsx';
 import CautionIcon from '@/assets/icons/caution.svg';
 import HeartIcon from '@/assets/icons/heart.svg';
 import StarIcon from '@/assets/icons/star.svg';
+import { useToggleLike } from '@/hooks/useToggleLike';
 
 export default function LikeLocalfoodCard({ localfood }) {
+  // 찜 토글 훅
+  const { mutate: toggleLike } = useToggleLike();
+
   return (
     <div className="border-gray-2 flex w-full gap-4 border-b p-4">
       {/* left section */}
@@ -27,6 +31,7 @@ export default function LikeLocalfoodCard({ localfood }) {
             <span>{localfood.averageRating?.toFixed(1)}</span>
           </div>
           <button
+            onClick={() => toggleLike({ productId: localfood.productId, isLiked: localfood.liked })}
             className={clsx(
               'flex cursor-pointer items-center gap-0.5 rounded-3xl border px-1',
               localfood.liked ? 'bg-main-green text-white' : 'border-gray-7 text-gray-7 hover:bg-gray-1',

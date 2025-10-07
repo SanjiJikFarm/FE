@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import debounce from 'lodash/debounce';
+import { useState } from 'react';
 
+import { searchShops } from '@/api/localfood/ShopController';
 import FoundNearStoreButton from '@/components/feature/localfood/FoundNearStoreButton';
 import LocalfoodModal from '@/components/feature/localfood/LocalfoodModal';
 import LocalfoodMap from '@/components/feature/localfood/map/Map';
@@ -10,7 +10,7 @@ export default function LocalfoodPage() {
   const [filter, setFilter] = useState('거리순');
 
   // 모달에 표시할 리스트
-  // const [shopList, setShopList] = useState([]);
+  const [shopList, setShopList] = useState([]);
 
   // 마커 클릭 시 선택된 매장
   const [selectedShop, setSelectedShop] = useState(null);
@@ -22,44 +22,31 @@ export default function LocalfoodPage() {
 
   // 입력창에 보여줄 바로 반응하는 상태
   const [inputValue, setInputValue] = useState('');
-  // 디바운싱 적용할 검색 트리거 상태
-  const [searchKeyword, setSearchKeyword] = useState('');
-  // 디바운싱 적용
-  const debouncedSearch = useCallback(
-    debounce((value) => {
-      setSearchKeyword(value.trim());
-    }, 500), // 500ms
-    [],
-  );
-  // searchKeyword 변경 시마다 API 호출
-  useEffect(() => {
-    if (searchKeyword) {
-      // TODO: API 호출 (filter마다 정렬 다르게)
-      console.log('Searching for:', searchKeyword);
-      setOpenSheet(true); // 검색되면 시트 열기
-    }
-  }, [searchKeyword]);
 
   // input 입력 시 호출됨
   const handleChange = (value) => {
     setInputValue(value); // 입력값은 즉시 반영
-    debouncedSearch(value); // 검색 트리거는 디바운스 처리
+  };
+
+  // 검색 아이콘 클릭 시 검색 실행
+  const handleSearch = () => {
+    const keyword = inputValue.trim();
+    if (keyword === '') return;
+
+    try {
+      const results = searchShops(keyword);
+      setShopList(results || []); // 검색 결과가 없으면 빈 배열
+      setOpenSheet(true);
+    } catch (e) {
+      console.error(e, '매장 검색 실패');
+    }
   };
 
   // 엔터 누르면 바로 검색 실행
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      debouncedSearch.cancel(); // 디바운싱 취소
-      setSearchKeyword(inputValue); // 즉시 검색
-      setOpenSheet(true);
+      handleSearch();
     }
-  };
-
-  // 검색 아이콘 클릭 시 검색 실행
-  const handleSearch = () => {
-    debouncedSearch.cancel();
-    setSearchKeyword(inputValue);
-    setOpenSheet(true);
   };
 
   // 필터 토글
@@ -190,7 +177,7 @@ export default function LocalfoodPage() {
           setOpenSheet(false);
           setSelectedShop(null);
         }}
-        shopList={selectedShop ? [selectedShop] : TEMP_LOCALFOOD_SHOP_LIST}
+        shopList={selectedShop ? [selectedShop] : shopList.length > 0 ? shopList : TEMP_LOCALFOOD_SHOP_LIST}
         filter={filter}
         toggleFilter={toggleFilter}
       />

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 
 import { getShopProductList } from '@/api/localfood/ProductController';
+import { getShopReviewList } from '@/api/localfood/ReviewController';
 import { getShopDetail } from '@/api/localfood/ShopController';
 import LocalfoodEmptyCard from '@/components/common/empty/LocalfoodEmptyCard';
 import LikeLocalfoodCard from '@/components/common/like/LikeLocalfoodCard';
@@ -15,6 +16,7 @@ export default function LocalfoodDetailPage() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('menu');
 
+  // 매장 상세 정보 쿼리
   const {
     data: shopDetail,
     isLoading: isShopDetailLoading,
@@ -24,7 +26,7 @@ export default function LocalfoodDetailPage() {
     queryFn: () => getShopDetail(id),
     enabled: !!id, // id가 있을 때만 쿼리 실행
   });
-
+  // 매장 상품 리스트 쿼리
   const {
     data: shopProducts = [],
     isLoading: isShopProductsLoading,
@@ -34,14 +36,24 @@ export default function LocalfoodDetailPage() {
     queryFn: () => getShopProductList(id),
     enabled: !!id, // id가 있을 때만 쿼리 실행
   });
+  // 매장 리뷰 리스트 쿼리
+  const {
+    data: shopReviews = [],
+    isLoading: isShopReviewsLoading,
+    error: shopReviewsError,
+  } = useQuery({
+    queryKey: ['shopReviews', id],
+    queryFn: () => getShopReviewList(id),
+    enabled: !!id, // id가 있을 때만 쿼리 실행
+  });
 
   // if (isLoading) return <div>Loading...</div>;
   // if (error) return <div>Error loading shop details.</div>;
   // if (!shopDetail) return <div>No shop details found.</div>;
 
-  console.log(shopDetail, shopProducts);
-  console.log('isLoading:', isShopDetailLoading, isShopProductsLoading);
-  console.log('error:', shopDetailError, shopProductsError);
+  console.log(shopDetail, shopProducts, shopReviews);
+  console.log('isLoading:', isShopDetailLoading, isShopProductsLoading, isShopReviewsLoading);
+  console.log('error:', shopDetailError, shopProductsError, shopReviewsError);
 
   const TEMP_LOCALFOOD_DETAIL = {
     shopId: 1,

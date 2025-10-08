@@ -14,3 +14,12 @@ export const getShopDetail = (shopId) =>
     const res = await axiosInstance.get(`/shops/${shopId}`);
     return res.data;
   });
+
+/** 전달한 키워드로 매장을 검색하는 함수 */
+export const searchShops = (keyword) =>
+  withErrorBoundary(async () => {
+    const res = await axiosInstance.get('/shops', {
+      params: { search: keyword },
+    });
+    return res.data;
+  });

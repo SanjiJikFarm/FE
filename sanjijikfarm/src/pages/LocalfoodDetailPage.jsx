@@ -34,7 +34,7 @@ export default function LocalfoodDetailPage() {
   } = useQuery({
     queryKey: ['shopProducts', id],
     queryFn: () => getShopProductList(id),
-    enabled: !!id, // id가 있을 때만 쿼리 실행
+    enabled: !!id && activeTab == 'menu', // id가 있을 때, menu 탭인 경우만 쿼리 실행
   });
   // 매장 리뷰 리스트 쿼리
   const {
@@ -44,7 +44,7 @@ export default function LocalfoodDetailPage() {
   } = useQuery({
     queryKey: ['shopReviews', id],
     queryFn: () => getShopReviewList(id),
-    enabled: !!id, // id가 있을 때만 쿼리 실행
+    enabled: !!id && activeTab == 'review', // id가 있을 때, review 탭인 경우만 쿼리 실행
   });
 
   // if (isLoading) return <div>Loading...</div>;

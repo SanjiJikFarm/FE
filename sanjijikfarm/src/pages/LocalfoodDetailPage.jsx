@@ -148,9 +148,6 @@ export default function LocalfoodDetailPage() {
     { id: 5, name: '파인애플', date: '2023-10-05', rating: 4, content: '괜찮아요.', reviewImages: [] },
   ];
 
-  // TODO: Fetch data from API and replace TEMP data
-  // (activeTab 상태에 따라 메뉴 or 리뷰 API 호출)
-
   return (
     <div className="flex h-full w-full flex-col">
       <UpperLocafoodInfo shop={TEMP_LOCALFOOD_DETAIL} />

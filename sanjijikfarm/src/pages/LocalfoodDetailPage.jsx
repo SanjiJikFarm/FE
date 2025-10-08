@@ -38,7 +38,7 @@ export default function LocalfoodDetailPage() {
   });
   // 매장 리뷰 리스트 쿼리
   const {
-    data: shopReviews = [],
+    data: shopReviews,
     isLoading: isShopReviewsLoading,
     error: shopReviewsError,
   } = useQuery({

@@ -1,16 +1,16 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { searchShops } from '@/api/localfood/ShopController';
+import { getShopList, searchShops } from '@/api/localfood/ShopController';
 import FoundNearStoreButton from '@/components/feature/localfood/FoundNearStoreButton';
 import LocalfoodModal from '@/components/feature/localfood/LocalfoodModal';
 import LocalfoodMap from '@/components/feature/localfood/map/Map';
 import SearchBar from '@/components/feature/localfood/SearchBar';
+import getCoordsByAddress from '@/lib/utils/KakaoGeocoder';
 
 export default function LocalfoodPage() {
+  // 필터 토글 관리
   const [filter, setFilter] = useState('거리순');
-
-  // 모달에 표시할 리스트
-  const [shopList, setShopList] = useState([]);
 
   // 마커 클릭 시 선택된 매장
   const [selectedShop, setSelectedShop] = useState(null);
@@ -28,18 +28,45 @@ export default function LocalfoodPage() {
     setInputValue(value); // 입력값은 즉시 반영
   };
 
+  // 매장 검색/검색어 비어있을시 전체매장 받을 공통 쿼리 훅
+  const {
+    data: searchedShopList = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ['shops', inputValue], // 검색 keyword에 따라 캐시 분리
+    queryFn: async () => {
+      const results = inputValue.trim() === '' ? await getShopList() : await searchShops(inputValue);
+
+      console.log(results);
+      // 좌표 변환 처리
+      const geocoded = await Promise.all(
+        results.map(async (shop) => {
+          try {
+            const coords = await getCoordsByAddress(shop.address);
+            return { ...shop, latlng: coords };
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      // 유효한 매장만 필터링
+      const valid = geocoded.filter(Boolean);
+      if (valid.length > 0 && valid[0].latlng) {
+        setCenter(valid[0].latlng);
+      }
+      return results;
+    },
+    enabled: false, // 검색 버튼 클릭 시 실행
+    retry: false,
+  });
+
   // 검색 아이콘 클릭 시 검색 실행
   const handleSearch = () => {
-    const keyword = inputValue.trim();
-    if (keyword === '') return;
-
-    try {
-      const results = searchShops(keyword);
-      setShopList(results || []); // 검색 결과가 없으면 빈 배열
-      setOpenSheet(true);
-    } catch (e) {
-      console.error(e, '매장 검색 실패');
-    }
+    refetch(); // 데이터 새로 호출
+    setOpenSheet(true);
   };
 
   // 엔터 누르면 바로 검색 실행
@@ -75,91 +102,7 @@ export default function LocalfoodPage() {
     setOpenSheet(true); // 모달 열기
   };
 
-  const TEMP_LOCALFOOD_SHOP_LIST = [
-    {
-      shopId: 1,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 2,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 3,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 4,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 5,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 6,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 7,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 8,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 9,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-    {
-      shopId: 10,
-      shopName: '김포로컬푸트 공동판매장',
-      averageRating: 3.8,
-      reviewCount: 37,
-      address: '경기도 김포시',
-      shopImage: 'https://via.placeholder.com/',
-    },
-  ];
-
-  // TODO: 검색 결과로 API에서 받아온 데이터로 교체
-  // (searchKeyword, filter 상태에 따라 API 호출)
+  if (isLoading || isError) return null;
 
   return (
     <div className="relative h-full w-full">
@@ -177,7 +120,7 @@ export default function LocalfoodPage() {
           setOpenSheet(false);
           setSelectedShop(null);
         }}
-        shopList={selectedShop ? [selectedShop] : shopList.length > 0 ? shopList : TEMP_LOCALFOOD_SHOP_LIST}
+        shopList={selectedShop ? [selectedShop] : searchedShopList.length > 0 ? searchedShopList : []}
         filter={filter}
         toggleFilter={toggleFilter}
       />

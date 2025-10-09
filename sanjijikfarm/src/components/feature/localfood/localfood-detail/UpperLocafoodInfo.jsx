@@ -4,7 +4,7 @@ export default function UpperLocafoodInfo({ shop }) {
   return (
     <div className="flex w-full flex-col gap-1">
       <div className="h-33 w-full">
-        <img className="bg-pale-green h-full w-full object-cover" src={shop.url} alt="localfood detail img" />
+        <img className="bg-pale-green h-full w-full object-cover" src={shop.shopImage} alt="localfood detail img" />
       </div>
       <div className="flex w-full flex-col gap-2 p-3">
         <span className="text-title-3 font-bold">{shop.shopName}</span>

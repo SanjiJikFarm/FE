@@ -1,8 +1,11 @@
 import FilterIcon from '@/assets/icons/filter.svg';
+import LocalfoodEmptyCard from '@/components/common/empty/LocalfoodEmptyCard';
 import BottomSheet from '@/components/common/util/BottomSheet';
 import LocalfoodContent from '@/components/feature/localfood/LocalfoodContent';
 
 export default function LocalfoodModal({ open, onClose, shopList, filter, toggleFilter }) {
+  const hasShops = Array.isArray(shopList) && shopList.length > 0;
+
   return (
     <BottomSheet open={open} onClose={onClose} title="로컬푸드 판매처" snapPoints={[0.92, 0.6, 0]}>
       <div className="relative flex w-full flex-col pb-22">
@@ -17,9 +20,13 @@ export default function LocalfoodModal({ open, onClose, shopList, filter, toggle
             </button>
           </div>
         </div>
-        {shopList.map((shop, index) => (
-          <LocalfoodContent key={`shop list ${index}`} shop={shop} />
-        ))}
+        {hasShops ? (
+          shopList.map((shop, index) => <LocalfoodContent key={`shop-list-${index}`} shop={shop} />)
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20">
+            <LocalfoodEmptyCard text="검색 결과가 없습니다." />
+          </div>
+        )}
       </div>
     </BottomSheet>
   );

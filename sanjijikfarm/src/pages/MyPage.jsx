@@ -9,7 +9,6 @@ export default function MyPage() {
     { label: '나의 구매내역', path: '/mypage/purchases' },
     { label: '나의 리뷰', path: '/mypage/reviews' },
     { label: '찜한 로컬푸드', path: '/mypage/likes' },
-    { label: '환경 기여 배지', path: '/mypage/badges' },
   ];
 
   return (
@@ -26,7 +25,6 @@ export default function MyPage() {
           className="text-title-2 flex items-center font-semibold"
         >
           김회원
-          <ArrowIcon className="ml-5 h-3 w-3" alt="프로필 이동" />
         </button>
       </div>
 

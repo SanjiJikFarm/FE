@@ -25,9 +25,8 @@ export const updateReview = (reviewId, productId, content, rating, photoUrl) =>
   });
 
 // 내 리뷰 불러오기
-export const fetchReviewList = async (page = 0, size = 50) => {
-  const res = await axiosInstance.get('/me/reviews', {
-    params: { page, size },
+export const fetchReviewList = (page = 0, size = 50) =>
+  withErrorBoundary(async () => {
+    const res = await axiosInstance.get('/me/reviews', { params: { page, size } });
+    return res.data.content;
   });
-  return res.data.content;
-};

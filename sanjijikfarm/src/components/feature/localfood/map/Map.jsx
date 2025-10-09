@@ -17,49 +17,25 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
     queryFn: () => getShopList(),
   });
 
-  const TEMPLIST = [
-    {
-      shopId: 1,
-      shopName: '매장1',
-      shopImage: '',
-      address: '제주특별자치도 제주시 첨단로 242',
-      averageRating: 4.5,
-      reviewCount: 120,
-    },
-    {
-      shopId: 2,
-      shopName: '매장2',
-      shopImage: '',
-      address: '제주특별자치도 제주시 아라일동 1',
-      averageRating: 4.2,
-      reviewCount: 85,
-    },
-    {
-      shopId: 3,
-      shopName: '매장3',
-      shopImage: '',
-      address: '제주특별자치도 제주시 산천단동3길 2',
-      averageRating: 4.8,
-      reviewCount: 200,
-    },
-  ];
-
   useEffect(() => {
-    if (TEMPLIST.length > 0) {
+    if (shopList.length > 0) {
       Promise.all(
-        TEMPLIST.map(async (shop) => {
+        shopList.map(async (shop) => {
           // 주소로 좌표 변환
-          const coords = await KakaoGeocoder(shop.address);
-          console.log(coords);
-          return {
-            shopId: shop.shopId,
-            shopName: shop.shopName,
-            shopImage: shop.shopImage,
-            address: shop.address,
-            latlng: coords,
-            averageRating: shop.averageRating,
-            reviewCount: shop.reviewCount,
-          };
+          try {
+            const coords = await KakaoGeocoder(shop.address);
+            return {
+              shopId: shop.shopId,
+              shopName: shop.shopName,
+              shopImage: shop.shopImage,
+              address: shop.address,
+              latlng: coords,
+              averageRating: shop.averageRating,
+              reviewCount: shop.reviewCount,
+            };
+          } catch (e) {
+            console.log('주소변환 실패', e);
+          }
         }),
         // 모든 주소 변환이 완료되면 fixedShopList 상태 업데이트 (필요 없는 값은 필터링: null 방지)
       ).then((results) => setfixedShopList(results.filter(Boolean)));
@@ -97,7 +73,7 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
     >
       {fixedShopList.map((shop) => (
         <MapMarker // 마커를 생성합니다
-          key={`${shop.title}-${shop.latlng}`}
+          key={`${shop.shopName}-${shop.latlng}`}
           position={shop.latlng} // 마커를 표시할 위치
           image={{
             src: '/icons/map-marker.svg',

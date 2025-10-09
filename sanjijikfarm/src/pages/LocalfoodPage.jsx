@@ -29,12 +29,12 @@ export default function LocalfoodPage() {
   };
 
   // 검색 아이콘 클릭 시 검색 실행
-  const handleSearch = () => {
+  const handleSearch = async () => {
     const keyword = inputValue.trim();
     if (keyword === '') return;
 
     try {
-      const results = searchShops(keyword);
+      const results = await searchShops(keyword);
       setShopList(results || []); // 검색 결과가 없으면 빈 배열
       setOpenSheet(true);
     } catch (e) {

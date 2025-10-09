@@ -3,7 +3,7 @@ import { Map, MapMarker } from 'react-kakao-maps-sdk';
 import { useQuery } from '@tanstack/react-query';
 
 import { getShopList } from '@/api/localfood/ShopController';
-import KakaoGeocoder from '@/lib/utils/KakaoGeocoder';
+import getCoordsByAddress from '@/lib/utils/KakaoGeocoder';
 
 export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
   const [fixedShopList, setfixedShopList] = useState([]);
@@ -23,7 +23,7 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
         shopList.map(async (shop) => {
           // 주소로 좌표 변환
           try {
-            const coords = await KakaoGeocoder(shop.address);
+            const coords = await getCoordsByAddress(shop.address);
             return {
               shopId: shop.shopId,
               shopName: shop.shopName,

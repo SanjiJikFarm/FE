@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { searchShops } from '@/api/localfood/ShopController';
+import { getShopList, searchShops } from '@/api/localfood/ShopController';
 import FoundNearStoreButton from '@/components/feature/localfood/FoundNearStoreButton';
 import LocalfoodModal from '@/components/feature/localfood/LocalfoodModal';
 import LocalfoodMap from '@/components/feature/localfood/map/Map';
@@ -32,10 +32,9 @@ export default function LocalfoodPage() {
   // 검색 아이콘 클릭 시 검색 실행
   const handleSearch = async () => {
     const keyword = inputValue.trim();
-    if (keyword === '') return;
 
     try {
-      const results = await searchShops(keyword);
+      const results = keyword === '' ? await getShopList() : await searchShops(keyword);
 
       // 센터 좌표 변경을 위해 좌표 변환
       const geocodedResults = await Promise.all(

@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+
+import { createReview, updateReview } from '@/api/review/review';
 
 import EmptyStar from '../../../assets/icons/emptystar.svg';
 import GreenStar from '../../../assets/icons/greenstar.svg';
@@ -11,13 +14,35 @@ export default function ReviewModal({ item, onClose, isEditMode }) {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
-    if (item) {
-      setRating(item.rating || 0);
-      setReviewText(item.reviewText || '');
-      setImages(item.images || []);
+    if (!item) return;
+
+    setRating(item.rating || 0);
+    setReviewText(item.reviewText || '');
+    if (item.imageUrl) {
+      setImages([{ preview: item.imageUrl }]);
+    } else {
+      setImages([]);
     }
   }, [item]);
 
+  // presigned URL 발급 함수
+  const getPresignedUrl = async (file) => {
+    const res = await fetch('https://relz6skmy6.execute-api.ap-northeast-2.amazonaws.com/dev/presigned-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: file.name,
+        filetype: file.type,
+      }),
+    });
+
+    if (!res.ok) throw new Error('Failed to get presigned URL');
+
+    const data = await res.json();
+    return data;
+  };
+
+  // 이미지 선택
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const previews = files.map((file) => ({
@@ -27,33 +52,59 @@ export default function ReviewModal({ item, onClose, isEditMode }) {
     setImages((prev) => [...prev, ...previews]);
   };
 
+  // 이미지 제거
   const handleImageRemove = (index) => {
     setImages((prev) => {
       const newImages = [...prev];
-      if (newImages[index].preview) {
-        URL.revokeObjectURL(newImages[index].preview);
-      }
+      if (newImages[index].preview) URL.revokeObjectURL(newImages[index].preview);
       newImages.splice(index, 1);
       return newImages;
     });
   };
 
-  const handleSubmit = () => {
-    console.log(isEditMode ? '수정된 리뷰 제출' : '새 리뷰 제출');
-    console.log('제출된 별점:', rating);
-    console.log('리뷰 내용:', reviewText);
-    console.log('업로드된 이미지:', images);
-    onClose();
+  // 리뷰 등록 / 수정
+  const handleSubmit = async () => {
+    try {
+      let photoUrl = '';
+
+      // 이미지가 있다면 S3 업로드 먼저
+      if (images.length > 0 && images[0].file) {
+        const file = images[0].file;
+        const presignedData = await getPresignedUrl(file);
+        const url = presignedData.url;
+
+        // S3 업로드
+        await axios.put(url, file, {
+          headers: { 'Content-Type': file.type },
+        });
+
+        // 업로드된 실제 이미지 URL
+        photoUrl = url.split('?')[0];
+      }
+
+      if (isEditMode && item.reviewId !== undefined) {
+        await updateReview(item.reviewId, item.productId, reviewText, rating, photoUrl);
+        alert('리뷰가 수정되었습니다.');
+      } else {
+        await createReview(item.productId, reviewText, rating, photoUrl);
+        alert('리뷰가 등록되었습니다.');
+      }
+
+      onClose();
+    } catch (error) {
+      console.error('리뷰 저장 실패:', error);
+      alert('리뷰 저장 중 오류가 발생했습니다.');
+    }
   };
 
   return (
     <div
       className="absolute inset-0 z-[1000] flex items-center justify-center bg-black/30 backdrop-blur-sm"
-      onClick={onClose} // 배경 클릭 시 닫기
+      onClick={onClose}
     >
       <div
         className="relative max-h-[90vh] w-[20rem] overflow-y-auto rounded-xl bg-white p-[1.5rem] shadow-lg"
-        onClick={(e) => e.stopPropagation()} // 모달 내부 클릭은 닫기 방지
+        onClick={(e) => e.stopPropagation()}
       >
         {/* 닫기 버튼 */}
         <button
@@ -63,7 +114,7 @@ export default function ReviewModal({ item, onClose, isEditMode }) {
           ×
         </button>
 
-        {/* 상품명 + 코드 */}
+        {/* 상품명 */}
         <div className="mb-[0.5rem]">
           <p className="text-[1rem] leading-tight font-bold text-black">{item?.name}</p>
           <p className="text-body-2-med mt-[0.3rem] text-gray-700">{item?.code}</p>
@@ -98,7 +149,6 @@ export default function ReviewModal({ item, onClose, isEditMode }) {
 
         {/* 이미지 업로드 */}
         <div className="mt-[0.75rem] space-y-[0.5rem]">
-          {/* 업로드 버튼 */}
           <div className="flex justify-start">
             <label className="relative flex h-[1rem] w-[1.2rem] cursor-pointer items-center justify-center rounded-md border border-gray-300">
               <PicUpload className="h-[0.5rem] w-[0.5rem] text-gray-500" />
@@ -106,7 +156,6 @@ export default function ReviewModal({ item, onClose, isEditMode }) {
             </label>
           </div>
 
-          {/* 이미지 목록 */}
           {images.length > 0 && (
             <div className="flex gap-[0.5rem] overflow-x-auto">
               {images.map((img, index) => (
@@ -114,7 +163,8 @@ export default function ReviewModal({ item, onClose, isEditMode }) {
                   key={index}
                   className="relative h-[3.5rem] w-[3.5rem] min-w-[3.5rem] shrink-0 overflow-hidden rounded-md bg-gray-200"
                 >
-                  <img src={img.preview || img} alt={`uploaded-${index}`} className="h-full w-full object-cover" />
+                  <img src={img.preview} alt={`uploaded-${index}`} className="h-full w-full object-cover" />
+
                   <button
                     className="bg-opacity-50 absolute top-[0.2rem] right-[0.2rem] flex h-[1rem] w-[1rem] items-center justify-center rounded-full bg-black text-[0.75rem] text-white"
                     onClick={() => handleImageRemove(index)}
@@ -127,7 +177,7 @@ export default function ReviewModal({ item, onClose, isEditMode }) {
           )}
         </div>
 
-        {/* 작성 완료 버튼 */}
+        {/* 작성/수정 완료 버튼 */}
         <button
           className="text-body-2-med mx-auto mt-[0.75rem] block w-[5rem] rounded-md bg-gray-200 py-[0.3rem] text-[0.87rem] transition hover:bg-gray-400"
           onClick={handleSubmit}

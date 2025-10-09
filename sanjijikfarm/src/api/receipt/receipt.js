@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { axiosInstance, withErrorBoundary } from '../axios/axios';
+
 // 서버리스 OCR API 연동
 export const uploadReceiptToOCR = (imageBase64, username) =>
   withErrorBoundary(async () => {

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useAuthStore } from '@/api/axios/store';
-import { getReceiptDetail } from '@/api/receipt/receipt';
+import { fetchReviewList, getReceiptDetail } from '@/api/receipt/receipt';
 
 import ItemCard from '../components/feature/Receipt/ItemCard';
 import ReviewModal from '../components/feature/Receipt/ReviewModal';
 
 export default function ReceiptDetail() {
-  const { id } = useParams();
+  const { id: receiptId } = useParams();
   const { username } = useAuthStore.getState();
   const [receipt, setReceipt] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,25 +17,41 @@ export default function ReceiptDetail() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
+  const loadReceiptSummary = async () => {
+    try {
+      const summaryData = await getReceiptDetail(username, receiptId);
+      const reviewData = await fetchReviewList();
+
+      const itemListWithReviews = summaryData.itemList.map((item) => {
+        const matchedReview = reviewData.find((review) => review.productId === item.productId);
+        return {
+          ...item,
+          reviewId: matchedReview?.reviewId ?? null,
+          rating: matchedReview?.rating ?? null,
+          reviewText: matchedReview?.text ?? '',
+          imageUrl: matchedReview?.imageUrl ?? null,
+        };
+      });
+
+      setReceipt({
+        ...summaryData,
+        itemList: itemListWithReviews,
+      });
+    } catch (error) {
+      console.error('영수증 및 리뷰 정보 로딩 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchReceipt = async () => {
-      try {
-        const data = await getReceiptDetail(username, id);
-
-        setReceipt(data);
-      } catch (err) {
-        console.error('상세 영수증 불러오기 실패:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReceipt();
-  }, [id, username]);
+    loadReceiptSummary();
+  }, []);
 
   const handleOpenModal = (item) => {
-    setSelectedItem(item);
-    setIsEditMode(!!item.rating);
+    const updatedItem = receipt.itemList.find((i) => Number(i.productId) === Number(item.productId));
+    setSelectedItem(updatedItem ?? item);
+    setIsEditMode(!!updatedItem?.reviewId);
     setIsModalOpen(true);
   };
 
@@ -49,7 +65,16 @@ export default function ReceiptDetail() {
 
   return (
     <div className="h-screen overflow-hidden bg-white">
-      {isModalOpen && <ReviewModal item={selectedItem} onClose={handleCloseModal} isEditMode={isEditMode} />}
+      {isModalOpen && (
+        <ReviewModal
+          item={selectedItem}
+          onClose={async () => {
+            await loadReceiptSummary();
+            handleCloseModal();
+          }}
+          isEditMode={isEditMode}
+        />
+      )}
 
       <div className="scrollbar-hide max-h-[calc(100vh-120px)] overflow-y-auto px-4 py-3">
         <div className="mb-6 border-b border-gray-300 py-3 text-sm text-gray-800">
@@ -57,8 +82,6 @@ export default function ReceiptDetail() {
           <div className="pb-4">
             <p className="text-title-3 text-center font-bold">{receipt.storeName}</p>
           </div>
-
-          {/* 기타 정보는 필요시 추가 */}
         </div>
 
         <div className="mb-8 space-y-3">
@@ -69,7 +92,7 @@ export default function ReceiptDetail() {
               onClickReview={() =>
                 handleOpenModal({
                   ...item,
-                  reviewText: item.rating ? '좋았어요! 신선하고 맛있었습니다.' : '',
+                  reviewText: item.reviewText || '',
                 })
               }
             />

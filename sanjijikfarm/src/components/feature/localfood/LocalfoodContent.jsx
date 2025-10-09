@@ -9,7 +9,7 @@ export default function LocalfoodContent({ shop }) {
         {/* Left Section */}
         <div className="flex flex-col gap-2">
           <span className="text-body-1 font-bold">{shop.shopName}</span>
-          <div className="text-body-2 flex items-center justify-center gap-3.5">
+          <div className="text-body-2 flex items-center gap-3.5">
             <span className="text-main-brown flex items-center gap-1">
               <StarIcon /> {shop.averageRating?.toFixed(1)}
             </span>

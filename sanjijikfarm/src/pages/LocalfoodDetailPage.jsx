@@ -51,72 +51,9 @@ export default function LocalfoodDetailPage() {
   // if (error) return <div>Error loading shop details.</div>;
   // if (!shopDetail) return <div>No shop details found.</div>;
 
-  console.log(shopDetail, shopProducts, shopReviews);
+  console.log(shopReviews);
   console.log('isLoading:', isShopDetailLoading, isShopProductsLoading, isShopReviewsLoading);
   console.log('error:', shopDetailError, shopProductsError, shopReviewsError);
-
-  const TEMP_LOCALFOOD_DETAIL = {
-    shopId: 1,
-    shopName: '김포로컬푸트 공동판매장',
-    averageRating: 3.8,
-    reviewCount: 37,
-    address: '경기도 김포시',
-    shopImage: 'https://via.placeholder.com/',
-    phone: '010-1234-5678',
-  };
-
-  const TEMP_MENU_LIST = [
-    {
-      productId: 1,
-      productName: '사과',
-      productImage: 'https://via.placeholder.com/150',
-      productPrice: 3000,
-      reviewCount: 0,
-      averageRating: 4.2,
-      productLike: 45,
-      liked: true,
-    },
-    {
-      productId: 2,
-      productName: '배',
-      productImage: 'https://via.placeholder.com/150',
-      productPrice: 4000,
-      reviewCount: 30,
-      averageRating: 4.0,
-      productLike: 20,
-      liked: false,
-    },
-    {
-      productId: 3,
-      productName: '감',
-      productImage: 'https://via.placeholder.com/150',
-      productPrice: 5000,
-      reviewCount: 20,
-      averageRating: 3.8,
-      productLike: 15,
-      liked: false,
-    },
-    {
-      productId: 4,
-      productName: '포도',
-      productImage: 'https://via.placeholder.com/150',
-      productPrice: 6000,
-      reviewCount: 25,
-      averageRating: 4.5,
-      productLike: 30,
-      liked: true,
-    },
-    {
-      productId: 5,
-      productName: '딸기',
-      productImage: 'https://via.placeholder.com/150',
-      productPrice: 7000,
-      reviewCount: 40,
-      averageRating: 4.7,
-      productLike: 50,
-      liked: true,
-    },
-  ];
 
   const TEMP_REVIEW_LIST = [
     { id: 1, name: '딸기', date: '2023-10-01', rating: 5, content: '맛있어요!', reviewImages: [] },
@@ -150,12 +87,12 @@ export default function LocalfoodDetailPage() {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <UpperLocafoodInfo shop={TEMP_LOCALFOOD_DETAIL} />
+      <UpperLocafoodInfo shop={shopDetail} />
       <LocalfoodDetailToggle onSelect={setActiveTab} active={activeTab} />
       <div className="scrollbar-hide flex flex-grow flex-col overflow-scroll">
         {activeTab === 'menu' ? (
-          TEMP_MENU_LIST.length > 0 ? (
-            TEMP_MENU_LIST.map((localfood) => <LikeLocalfoodCard key={localfood.productId} localfood={localfood} />)
+          shopProducts.length > 0 ? (
+            shopProducts.map((localfood) => <LikeLocalfoodCard key={localfood.productId} localfood={localfood} />)
           ) : (
             <LocalfoodEmptyCard text="아직 등록된 메뉴가 없습니다." />
           )

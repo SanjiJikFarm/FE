@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 import { useAuthStore } from '@/api/axios/store';
 import { getReceiptDetail } from '@/api/receipt/receipt';
@@ -11,43 +12,38 @@ import ReviewModal from '../components/feature/Receipt/ReviewModal';
 export default function ReceiptDetail() {
   const { id: receiptId } = useParams();
   const { username } = useAuthStore.getState();
-  const [receipt, setReceipt] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  const loadReceiptSummary = async () => {
-    try {
-      const summaryData = await getReceiptDetail(username, receiptId);
-      const reviewData = await fetchReviewList();
+  const {
+    data: receipt,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ['receiptDetail', receiptId],
+    queryFn: async () => {
+      const [receiptData, reviews] = await Promise.all([getReceiptDetail(username, receiptId), fetchReviewList()]);
 
-      const itemListWithReviews = summaryData.itemList.map((item) => {
-        const matchedReview = reviewData.find((review) => review.productId === item.productId);
+      const itemListWithReviews = receiptData.itemList.map((item) => {
+        const matched = reviews.find((r) => r.productId === item.productId);
         return {
           ...item,
-          reviewId: matchedReview?.reviewId ?? null,
-          rating: matchedReview?.rating ?? null,
-          reviewText: matchedReview?.text ?? '',
-          imageUrl: matchedReview?.imageUrl ?? null,
+          reviewId: matched?.reviewId ?? null,
+          rating: matched?.rating ?? null,
+          reviewText: matched?.text ?? '',
+          imageUrl: matched?.imageUrl ?? null,
         };
       });
 
-      setReceipt({
-        ...summaryData,
+      return {
+        ...receiptData,
         itemList: itemListWithReviews,
-      });
-    } catch (error) {
-      console.error('영수증 및 리뷰 정보 로딩 실패:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadReceiptSummary();
-  }, []);
+      };
+    },
+  });
 
   const handleOpenModal = (item) => {
     const updatedItem = receipt.itemList.find((i) => Number(i.productId) === Number(item.productId));
@@ -61,8 +57,8 @@ export default function ReceiptDetail() {
     setIsModalOpen(false);
   };
 
-  if (loading) return <p className="py-10 text-center">로딩 중...</p>;
-  if (!receipt) return <p className="py-10 text-center">영수증을 불러오지 못했습니다.</p>;
+  if (isLoading) return <p className="py-10 text-center">로딩 중...</p>;
+  if (isError || !receipt) return <p className="py-10 text-center">영수증을 불러오지 못했습니다.</p>;
 
   return (
     <div className="h-screen overflow-hidden bg-white">
@@ -70,7 +66,7 @@ export default function ReceiptDetail() {
         <ReviewModal
           item={selectedItem}
           onClose={async () => {
-            await loadReceiptSummary();
+            await refetch();
             handleCloseModal();
           }}
           isEditMode={isEditMode}

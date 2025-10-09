@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+
+import { fetchReviewList } from '@/api/review/review';
 import ReviewCard from '@/components/common/review/ReviewCard';
-import { fetchReviewList } from '@/api/receipt/receipt';
 
 export default function MyReviews() {
   const [myReviews, setMyReviews] = useState([]);
@@ -19,8 +20,8 @@ export default function MyReviews() {
       try {
         const data = await fetchReviewList();
         const formatted = data.map((review) => ({
-          name: review.productName,              
-          date: formatDate(review.createdAt),    
+          name: review.productName,
+          date: formatDate(review.createdAt),
           rating: review.rating,
           content: review.text,
           reviewImages: review.imageUrl ? [review.imageUrl] : [],
@@ -43,9 +44,7 @@ export default function MyReviews() {
       {myReviews.length === 0 ? (
         <div className="text-center text-gray-500">작성한 리뷰가 없습니다</div>
       ) : (
-        myReviews.map((review, idx) => (
-          <ReviewCard key={idx} review={review} />
-        ))
+        myReviews.map((review, idx) => <ReviewCard key={idx} review={review} />)
       )}
     </div>
   );

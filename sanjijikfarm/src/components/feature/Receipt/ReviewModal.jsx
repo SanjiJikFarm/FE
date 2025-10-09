@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import { createReview, updateReview } from '@/api/receipt/receipt';
+import { createReview, updateReview } from '@/api/review/review';
 
 import EmptyStar from '../../../assets/icons/emptystar.svg';
 import GreenStar from '../../../assets/icons/greenstar.svg';

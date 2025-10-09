@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useAuthStore } from '@/api/axios/store';
-import { fetchReviewList, getReceiptDetail } from '@/api/receipt/receipt';
+import { getReceiptDetail } from '@/api/receipt/receipt';
+import { fetchReviewList } from '@/api/review/review';
 
 import ItemCard from '../components/feature/Receipt/ItemCard';
 import ReviewModal from '../components/feature/Receipt/ReviewModal';

@@ -1,12 +1,16 @@
 // src/components/ProtectedRoute.tsx
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+
+import { useAuthStore } from '@/api/axios/store';
 
 export default function ProtectedRoute() {
-  const user = true; // 이후 실제 인증 상태로 교체
+  const location = useLocation();
+  // Zustand에서 accessToken 가져오기
+  const { accessToken } = useAuthStore();
 
-  if (!user) {
-    // 로그인 안 됐으면 로그인 페이지로 이동
-    return <Navigate to="/login" replace />;
+  // accessToken 없으면 splash 페이지로 리다이렉트
+  if (!accessToken) {
+    return <Navigate to="/" replace state={{ from: location }} />;
   }
 
   // 로그인 되어있으면 자식 라우트 렌더링

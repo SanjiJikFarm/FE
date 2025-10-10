@@ -99,6 +99,7 @@ export default function LocalfoodPage() {
   // 마커 클릭 이벤트
   const handleMarkerClick = (shop) => {
     setSelectedShop(shop); // 선택한 매장 정보 저장
+    console.log(shop);
     setOpenSheet(true); // 모달 열기
   };
 

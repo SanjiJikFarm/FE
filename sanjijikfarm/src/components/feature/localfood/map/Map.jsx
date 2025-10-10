@@ -25,13 +25,8 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
           try {
             const coords = await getCoordsByAddress(shop.address);
             return {
-              shopId: shop.shopId,
-              shopName: shop.shopName,
-              shopImage: shop.shopImage,
-              address: shop.address,
+              ...shop,
               latlng: coords,
-              averageRating: shop.averageRating,
-              reviewCount: shop.reviewCount,
             };
           } catch (e) {
             console.log('주소변환 실패', e);

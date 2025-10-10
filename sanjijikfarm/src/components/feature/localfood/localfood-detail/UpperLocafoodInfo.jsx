@@ -10,7 +10,7 @@ export default function UpperLocafoodInfo({ shop }) {
         <span className="text-title-3 font-bold">{shop.shopName}</span>
         <div className="flex items-center gap-0.5">
           <StarIcon />
-          <span className="text-main-brown text-body-2-med font-medium">{shop.averageRating?.toFixed(1)}</span>
+          <span className="text-main-brown text-body-2-med font-medium">{shop.avgRating?.toFixed(1)}</span>
         </div>
         <span className="text-body-2-med text-gray-7 font-medium">주소 | {shop.address}</span>
         <span className="text-body-2-med text-gray-7 font-medium">전화 | {shop.phone}</span>

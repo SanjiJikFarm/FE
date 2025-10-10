@@ -24,7 +24,7 @@ export default function LocalfoodDetailPage() {
   } = useQuery({
     queryKey: ['shopDetail', id],
     queryFn: () => getShopDetail(id),
-    enabled: !!id, // id가 있을 때만 쿼리 실행
+    enabled: !!id && id !== 'undefined', // id가 있을 때만 쿼리 실행
   });
   // 매장 상품 리스트 쿼리
   const {
@@ -34,7 +34,7 @@ export default function LocalfoodDetailPage() {
   } = useQuery({
     queryKey: ['shopProducts', id],
     queryFn: () => getShopProductList(id),
-    enabled: !!id && activeTab == 'menu', // id가 있을 때, menu 탭인 경우만 쿼리 실행
+    enabled: !!id && id !== 'undefined' && activeTab == 'menu', // id가 있을 때, menu 탭인 경우만 쿼리 실행
   });
   // 매장 리뷰 리스트 쿼리
   const {
@@ -44,46 +44,11 @@ export default function LocalfoodDetailPage() {
   } = useQuery({
     queryKey: ['shopReviews', id],
     queryFn: () => getShopReviewList(id),
-    enabled: !!id && activeTab == 'review', // id가 있을 때, review 탭인 경우만 쿼리 실행
+    enabled: !!id && id !== 'undefined' && activeTab == 'review', // id가 있을 때, review 탭인 경우만 쿼리 실행
   });
 
-  // if (isLoading) return <div>Loading...</div>;
-  // if (error) return <div>Error loading shop details.</div>;
-  // if (!shopDetail) return <div>No shop details found.</div>;
-
-  console.log(shopReviews);
-  console.log('isLoading:', isShopDetailLoading, isShopProductsLoading, isShopReviewsLoading);
-  console.log('error:', shopDetailError, shopProductsError, shopReviewsError);
-
-  const TEMP_REVIEW_LIST = [
-    { id: 1, name: '딸기', date: '2023-10-01', rating: 5, content: '맛있어요!', reviewImages: [] },
-    {
-      id: 2,
-      name: '바나나',
-      date: '2023-10-02',
-      rating: 4,
-      content:
-        '좋아요! 다음에 또 구매할게요. 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 긴 리뷰 테스트 ',
-      reviewImages: ['https://via.placeholder.com/150', 'https://via.placeholder.com/150'],
-    },
-    {
-      id: 3,
-      name: '키위',
-      date: '2023-10-03',
-      rating: 3,
-      content: '그저 그래요.',
-      reviewImages: [
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-        'https://via.placeholder.com/150',
-      ],
-    },
-    { id: 4, name: '망고', date: '2023-10-04', rating: 5, content: '최고예요!', reviewImages: [] },
-    { id: 5, name: '파인애플', date: '2023-10-05', rating: 4, content: '괜찮아요.', reviewImages: [] },
-  ];
+  if (isShopDetailLoading || isShopProductsLoading || isShopReviewsLoading) return <div>Loading...</div>;
+  if (shopDetailError || shopProductsError || shopReviewsError) return <div>Error loading shop details.</div>;
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -96,8 +61,8 @@ export default function LocalfoodDetailPage() {
           ) : (
             <LocalfoodEmptyCard text="아직 등록된 메뉴가 없습니다." />
           )
-        ) : TEMP_REVIEW_LIST.length > 0 ? (
-          TEMP_REVIEW_LIST.map((review) => <ReviewCard key={review.id} review={review} />)
+        ) : shopReviews.content.length > 0 ? (
+          shopReviews.content.map((review) => <ReviewCard key={review.id} review={review} />)
         ) : (
           <LocalfoodEmptyCard text="아직 등록된 리뷰가 없습니다." />
         )}

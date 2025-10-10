@@ -2,22 +2,17 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 
+import { fetchMonthlyCarbon, fetchProductCarbon, fetchWeeklyCarbon } from '@/api/report/report';
+
 import PurchaseHistory from '../components/feature/Report/PurchaseHistory';
 import ReportSummary from '../components/feature/Report/ReportSummary';
 import WeeklyBarChart from '../components/feature/Report/WeekyBarChart';
 
-import {
-  fetchWeeklyCarbon,
-  fetchMonthlyCarbon,
-  fetchProductCarbon,
-} from '@/api/report/report';
-
 export default function ReportPage() {
-  const [targetDate, setTargetDate] = useState(dayjs()); 
+  const [targetDate, setTargetDate] = useState(dayjs());
 
-  const month = targetDate.month() + 1 + ''; 
-  const year = targetDate.year() + '';      
-
+  const month = targetDate.month() + 1 + '';
+  const year = targetDate.year() + '';
 
   const handlePrevMonth = () => {
     setTargetDate((prev) => prev.subtract(1, 'month'));
@@ -25,10 +20,9 @@ export default function ReportPage() {
 
   const handleNextMonth = () => {
     const next = targetDate.add(1, 'month');
-    if (next.isAfter(dayjs(), 'month')) return; 
+    if (next.isAfter(dayjs(), 'month')) return;
     setTargetDate(next);
-  };  
-
+  };
 
   const {
     data: weeklyData = [],
@@ -40,7 +34,6 @@ export default function ReportPage() {
     staleTime: 1000 * 60 * 5,
   });
 
-
   const {
     data: monthlyData = {},
     isLoading: isLoadingMonthly,
@@ -50,7 +43,6 @@ export default function ReportPage() {
     queryFn: () => fetchMonthlyCarbon(month),
     staleTime: 1000 * 60 * 5,
   });
-
 
   const {
     data: productData = [],
@@ -72,7 +64,7 @@ export default function ReportPage() {
       value: savedKg,
     }));
   }, [weeklyData]);
-  
+
   const purchaseHistory = useMemo(() => {
     const grouped = productData.reduce((acc, cur) => {
       const formattedDate = dayjs(cur.date).format('YYYY.MM.DD');
@@ -93,27 +85,22 @@ export default function ReportPage() {
     return grouped;
   }, [productData]);
 
-  if (isLoading)
-    return <div className="text-center mt-10">로딩 중...</div>;
-  if (isError)
-    return <div className="text-center mt-10 text-red-500">데이터를 불러오지 못했습니다.</div>;
+  if (isLoading) return <div className="mt-10 text-center">로딩 중...</div>;
+  if (isError) return <div className="mt-10 text-center text-red-500">데이터를 불러오지 못했습니다.</div>;
 
   return (
     <div className="scrollbar-hide h-screen max-h-[82vh] overflow-y-auto pt-[1.7rem]">
-      <div className="flex justify-center items-center gap-4 mb-2">
-        <button onClick={handlePrevMonth} className="text-xl px-2">
+      <div className="mb-2 flex items-center justify-center gap-4">
+        <button onClick={handlePrevMonth} className="px-2 text-xl">
           {'<'}
         </button>
         <h2 className="text-title-3 font-bold">{`${year}년 ${month}월`}</h2>
-        <button onClick={handleNextMonth} className="text-xl px-2">
+        <button onClick={handleNextMonth} className="px-2 text-xl">
           {'>'}
         </button>
       </div>
 
-      <ReportSummary
-  totalPurchases={monthlyData.purchaseCount || 0}
-  totalReducedCO2={monthlyData.totalSavedKg || 0}
-/>
+      <ReportSummary totalPurchases={monthlyData.purchaseCount || 0} totalReducedCO2={monthlyData.totalSavedKg || 0} />
 
       <WeeklyBarChart data={weeklyReduction} />
 

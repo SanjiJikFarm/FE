@@ -8,9 +8,9 @@ export default function ItemCard({ name, code, price, qty, total, rating, onClic
 
       {/* 코드 + 가격 정보 */}
       <div className="text-body-2-med mb-2 flex justify-between text-gray-700">
-        <span className="w-1/3">{price.toLocaleString()}원</span>
-        <span className="w-1/3 text-center">{qty}개</span>
-        <span className="w-1/3 text-right">{total.toLocaleString()}원</span>
+        <span className="w-1/3">{price.toLocaleString()}</span>
+        <span className="w-1/3 text-center">{qty}</span>
+        <span className="w-1/3 text-right">{total.toLocaleString()}</span>
       </div>
 
       {/* 별점 + 리뷰 버튼 */}

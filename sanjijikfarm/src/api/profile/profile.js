@@ -39,9 +39,3 @@ export const updateUserProfileImage = (newKey) =>
     return res.data;
   });
 
-// 프로필 이미지 삭제
-export const deleteUserProfileImage = () =>
-  withErrorBoundary(async () => {
-    const res = await axiosInstance.delete('/profile/delete');
-    return res.data;
-  });

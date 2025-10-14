@@ -7,11 +7,10 @@ export default function ItemCard({ name, code, price, qty, total, rating, onClic
       <div className="text-body-1 mb-1 font-semibold">{name}</div>
 
       {/* 코드 + 가격 정보 */}
-      <div className="text-body-2-med mb-1 flex justify-between text-gray-700">
-        <span>{code}</span>
-        <span>{price.toLocaleString()}</span>
-        <span>{qty}</span>
-        <span className="text-body-2-med text-gray-700">{total.toLocaleString()}</span>
+      <div className="text-body-2-med mb-2 flex justify-between text-gray-700">
+        <span className="w-1/3">{price.toLocaleString()}</span>
+        <span className="w-1/3 text-center">{qty}</span>
+        <span className="w-1/3 text-right">{total.toLocaleString()}</span>
       </div>
 
       {/* 별점 + 리뷰 버튼 */}
@@ -19,15 +18,7 @@ export default function ItemCard({ name, code, price, qty, total, rating, onClic
         {hasRating ? <span className="text-main-brown text-body-2-med">★ {rating}</span> : <span />}
 
         <button
-          onClick={() =>
-            onClickReview({
-              name,
-              code,
-              rating,
-              reviewText: '맛있고 신선했어요!',
-              images: ['/example.jpg'],
-            })
-          }
+          onClick={onClickReview}
           className={`text-body-2 rounded px-3 py-1 font-semibold ${
             hasRating ? 'bg-pale-green text-black' : 'bg-main-green text-white hover:bg-green-600'
           }`}

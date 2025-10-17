@@ -38,4 +38,3 @@ export const updateUserProfileImage = (newKey) =>
     });
     return res.data;
   });
-

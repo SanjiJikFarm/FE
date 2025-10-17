@@ -28,8 +28,6 @@ export default function MyLikesPage() {
 
   const allProducts = data?.pages.flatMap((page) => page.content) ?? [];
 
-  console.log(allProducts, data);
-
   return (
     <div className="flex h-full w-full">
       <div className="scrollbar-hide flex flex-grow flex-col overflow-scroll">

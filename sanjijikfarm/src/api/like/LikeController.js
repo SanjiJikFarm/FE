@@ -4,7 +4,7 @@ import { withErrorBoundary } from '../axios/axios';
 /** 상품 아이디를 전달하면 찜 리스트에 추가하는 함수 */
 export function likeProduct(productId) {
   return withErrorBoundary(async () => {
-    const res = await axiosInstance.get(`/products/${productId}/like`);
+    const res = await axiosInstance.post(`/products/${productId}/like`);
     return res.data;
   });
 }

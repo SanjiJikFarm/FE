@@ -14,14 +14,20 @@ export default function ReportPage() {
   const month = targetDate.month() + 1 + '';
   const year = targetDate.year() + '';
 
+  const now = dayjs();
+  const lastMonth = now.subtract(1, 'month');
+
+  const isAtLastMonth = targetDate.isSame(lastMonth, 'month');
+  const isAtCurrentMonth = targetDate.isSame(now, 'month');
+
   const handlePrevMonth = () => {
-    setTargetDate((prev) => prev.subtract(1, 'month'));
+    if (isAtLastMonth) return;
+    setTargetDate(targetDate.subtract(1, 'month'));
   };
 
   const handleNextMonth = () => {
-    const next = targetDate.add(1, 'month');
-    if (next.isAfter(dayjs(), 'month')) return;
-    setTargetDate(next);
+    if (isAtCurrentMonth) return;
+    setTargetDate(targetDate.add(1, 'month'));
   };
 
   const {
@@ -91,11 +97,23 @@ export default function ReportPage() {
   return (
     <div className="scrollbar-hide h-screen max-h-[82vh] overflow-y-auto pt-[1.7rem]">
       <div className="mb-2 flex items-center justify-center gap-4">
-        <button onClick={handlePrevMonth} className="px-2 text-xl">
+        <button
+          onClick={handlePrevMonth}
+          disabled={isAtLastMonth}
+          className={`px-2 text-xl transition ${isAtLastMonth ? 'cursor-not-allowed opacity-50' : 'hover:opacity-80'}`}
+        >
           {'<'}
         </button>
+
         <h2 className="text-title-3 font-bold">{`${year}년 ${month}월`}</h2>
-        <button onClick={handleNextMonth} className="px-2 text-xl">
+
+        <button
+          onClick={handleNextMonth}
+          disabled={isAtCurrentMonth}
+          className={`px-2 text-xl transition ${
+            isAtCurrentMonth ? 'cursor-not-allowed opacity-50' : 'hover:opacity-80'
+          }`}
+        >
           {'>'}
         </button>
       </div>

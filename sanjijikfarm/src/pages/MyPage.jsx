@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { logout } from '@/api/axios/auth';
 import { useAuthStore } from '@/api/axios/store';
 import { getPresignedUrl, saveUserProfileImage, updateUserProfileImage, uploadImageToS3 } from '@/api/profile/profile';
 import ArrowIcon from '@/assets/icons/right-arrow.svg';
@@ -53,7 +54,7 @@ export default function MyPage() {
   ];
 
   return (
-    <div className="flex flex-col items-center px-5 pt-10">
+    <div className="relative flex flex-col items-center px-5 pt-10">
       <div className="flex w-full flex-col items-center border-b border-gray-200 pb-10">
         <div className="relative mb-3 h-16 w-16">
           {profileImageUrl ? (
@@ -93,6 +94,12 @@ export default function MyPage() {
             <ArrowIcon className="h-3 w-3" alt="화살표 아이콘" />
           </button>
         ))}
+      </div>
+
+      <div className="text-body-2 text-gray-4 border-gray-3 absolute top-2 right-2 flex justify-end border-b font-semibold">
+        <button className="cursor-pointer" onClick={logout}>
+          로그아웃
+        </button>
       </div>
     </div>
   );

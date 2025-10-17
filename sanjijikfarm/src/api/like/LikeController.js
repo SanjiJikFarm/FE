@@ -20,7 +20,7 @@ export function unlikeProduct(productId) {
 /** 찜한 상품 리스트를 조회하는 함수 */
 export function getLikedProducts() {
   return withErrorBoundary(async () => {
-    //const res = await axiosInstance.get(`/user/${userId}/likes`);
-    //return res.data;
+    const res = await axiosInstance.get(`/users/likes`);
+    return res.data;
   });
 }

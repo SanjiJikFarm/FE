@@ -19,22 +19,52 @@ export const useToggleLike = () => {
     },
     // 요청 직전에 캐시를 즉시 수정하는 낙관적 UI 업데이트 (UX 개선 위해)
     onMutate: async ({ productId, isLiked }) => {
-      // 현재 캐시 스냅샷 저장 (나중에 실패 시 복구용)
-      const previousDataList = queryClient.getQueriesData({ queryKey: ['shopProducts'] });
+      // 수정할 data의 query key
+      const allQueryKeys = [['shopProducts'], ['likedProducts']];
+      // rollback 저장용 배열
+      const previousSnapshots = [];
 
-      // 즉시 화면 반영 (좋아요 토글)
-      previousDataList.forEach(([key, oldData]) => {
-        if (!oldData) return;
+      allQueryKeys.forEach((queryKey) => {
+        const queryDataList = queryClient.getQueriesData({ queryKey });
 
-        const newData = Array.isArray(oldData)
-          ? oldData.map((item) => (item.productId === productId ? { ...item, liked: !isLiked } : item))
-          : oldData;
+        queryDataList.forEach(([key, oldData]) => {
+          if (!oldData) return;
+          previousSnapshots.push([key, oldData]); // rollback용 저장
 
-        queryClient.setQueryData(key, newData);
+          // shopProducts: 배열형
+          if (Array.isArray(oldData)) {
+            const newData = oldData.map((item) =>
+              item.productId === productId
+                ? {
+                    ...item,
+                    liked: !isLiked,
+                    productLike: item.productLike + (isLiked ? -1 : 1),
+                  }
+                : item,
+            );
+            queryClient.setQueryData(key, newData);
+          }
+
+          // likedProducts: infiniteQuery형
+          else if (oldData.pages) {
+            const newPages = oldData.pages.map((page) => ({
+              ...page,
+              content: page.content.map((item) =>
+                item.productId === productId
+                  ? {
+                      ...item,
+                      liked: !isLiked,
+                      productLike: item.productLike + (isLiked ? -1 : 1),
+                    }
+                  : item,
+              ),
+            }));
+            queryClient.setQueryData(key, { ...oldData, pages: newPages });
+          }
+        });
       });
 
-      // 실패 시 rollback을 위해 이전 데이터를 반환
-      return { previousDataList };
+      return { previousSnapshots };
     },
     // 성공 시 별도 처리 없음 (낙관적 UI로 기반영됨)
     onSuccess: () => {},
@@ -57,6 +87,7 @@ export const useToggleLike = () => {
     // 혹시 모르는 상황 방지 위해 서버 데이터 재동기화 하는 역할
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['shopProducts'] });
+      queryClient.invalidateQueries({ queryKey: ['likedProducts'] });
     },
   });
 

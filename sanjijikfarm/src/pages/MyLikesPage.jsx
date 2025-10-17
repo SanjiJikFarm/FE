@@ -1,108 +1,46 @@
+import { useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
+import { useInfiniteQuery } from '@tanstack/react-query';
+
+import { getLikedProducts } from '@/api/like/LikeController';
 import LocalfoodEmptyCard from '@/components/common/empty/LocalfoodEmptyCard';
 import LikeLocalfoodCard from '@/components/common/like/LikeLocalfoodCard';
 
 export default function MyLikesPage() {
-  const TEMP_MENU_LIST = [
-    {
-      id: 1,
-      name: '사과',
-      price: 3000,
-      hasNoReview: false,
-      rating: 4.2,
-      likeCount: 45,
-      isLiked: true,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 2,
-      name: '배',
-      price: 4000,
-      hasNoReview: false,
-      rating: 4.0,
-      likeCount: 30,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 3,
-      name: '감',
-      price: 5000,
-      hasNoReview: false,
-      rating: 3.8,
-      likeCount: 22,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 4,
-      name: '귤',
-      price: 6000,
-      hasNoReview: false,
-      rating: 4.5,
-      likeCount: 60,
-      isLiked: true,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 5,
-      name: '포도',
-      price: 7000,
-      hasNoReview: false,
-      rating: 4.1,
-      likeCount: 38,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 6,
-      name: '포도',
-      price: 7000,
-      hasNoReview: false,
-      rating: 4.1,
-      likeCount: 38,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 7,
-      name: '포도',
-      price: 7000,
-      hasNoReview: false,
-      rating: 4.1,
-      likeCount: 38,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 8,
-      name: '포도',
-      price: 7000,
-      hasNoReview: false,
-      rating: 4.1,
-      likeCount: 38,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
-    },
-    {
-      id: 9,
-      name: '포도',
-      price: 7000,
-      hasNoReview: false,
-      rating: 4.1,
-      likeCount: 38,
-      isLiked: false,
-      url: 'https://via.placeholder.com/150',
-    },
-  ];
+  // 다음 페이지 감지용 inview
+  const { ref, inView } = useInView();
+
+  // 무한 스크롤용 React Infinite Query
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isError, isLoading } = useInfiniteQuery({
+    queryKey: ['likedProducts'],
+    queryFn: ({ pageParam = 0 }) => getLikedProducts(pageParam),
+    getNextPageParam: (lastPage) => (lastPage.last ? undefined : lastPage.number + 1),
+  });
+
+  // inView 감지 시 다음 페이지 자동 호출
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  if (isLoading || isError) return;
+
+  const allProducts = data?.pages.flatMap((page) => page.contents) ?? [];
 
   return (
     <div className="flex h-full w-full">
       <div className="scrollbar-hide flex flex-grow flex-col overflow-scroll">
-        {TEMP_MENU_LIST.length > 0 ? (
-          TEMP_MENU_LIST.map((localfood) => <LikeLocalfoodCard key={localfood.id} localfood={localfood} />)
+        {allProducts.length > 0 ? (
+          allProducts.map((localfood) => <LikeLocalfoodCard key={localfood.id} localfood={localfood} />)
         ) : (
           <LocalfoodEmptyCard text="아직 찜한 메뉴가 없습니다." />
         )}
+
+        {/* 감지용 div */}
+        <div ref={ref} className="flex h-10 items-center justify-center">
+          {isFetchingNextPage && <p>불러오는 중...</p>}
+        </div>
       </div>
     </div>
   );

@@ -26,13 +26,15 @@ export default function MyLikesPage() {
 
   if (isLoading || isError) return;
 
-  const allProducts = data?.pages.flatMap((page) => page.contents) ?? [];
+  const allProducts = data?.pages.flatMap((page) => page.content) ?? [];
+
+  console.log(allProducts, data);
 
   return (
     <div className="flex h-full w-full">
       <div className="scrollbar-hide flex flex-grow flex-col overflow-scroll">
         {allProducts.length > 0 ? (
-          allProducts.map((localfood) => <LikeLocalfoodCard key={localfood.id} localfood={localfood} />)
+          allProducts.map((localfood) => <LikeLocalfoodCard key={localfood.productId} localfood={localfood} />)
         ) : (
           <LocalfoodEmptyCard text="아직 찜한 메뉴가 없습니다." />
         )}

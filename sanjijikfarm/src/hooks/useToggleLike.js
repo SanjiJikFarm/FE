@@ -27,7 +27,7 @@ export const useToggleLike = () => {
         if (!oldData) return;
 
         const newData = Array.isArray(oldData)
-          ? oldData.map((item) => (item.productId === productId ? { ...item, isLiked: !isLiked } : item))
+          ? oldData.map((item) => (item.productId === productId ? { ...item, liked: !isLiked } : item))
           : oldData;
 
         queryClient.setQueryData(key, newData);
@@ -60,5 +60,5 @@ export const useToggleLike = () => {
     },
   });
 
-  return { toggleLike, isToggling: toggleLike.isLoading };
+  return { mutate: toggleLike.mutate, isToggling: toggleLike.isLoading };
 };

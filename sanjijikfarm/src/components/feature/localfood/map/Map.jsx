@@ -15,6 +15,11 @@ export default function LocalfoodMap({ handleMarkerClick, center, setCenter }) {
   } = useQuery({
     queryKey: ['shopList'],
     queryFn: () => getShopList(),
+    staleTime: 1000 * 60 * 60 * 24,
+    cacheTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchInterval: false,
   });
 
   useEffect(() => {

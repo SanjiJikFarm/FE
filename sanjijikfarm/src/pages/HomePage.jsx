@@ -9,8 +9,6 @@ export default function HomePage() {
     { url: 'https://via.placeholder.com/600x300', main: 'Main Title', sub: 'Sub Title goes here' },
   ];
 
-  const TEMP_DECREASE_AMOUNT = 50;
-
   const month = new Date().getMonth();
 
   return (
@@ -22,7 +20,7 @@ export default function HomePage() {
         <span className="text-heading-1 font-bold">{month + 1}월의 식재료 추천</span>
         <FoodSlider month={month + 1} />
       </div>
-      <MainDecreaseAmount amount={TEMP_DECREASE_AMOUNT} />
+      <MainDecreaseAmount month={month + 1} />
     </div>
   );
 }

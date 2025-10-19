@@ -154,6 +154,7 @@ export default function LocalfoodPage() {
           setFilter('평점순');
           setSelectedShop(null);
           setShopList([]);
+          setInputValue('');
         }}
         shopList={selectedShop ? [selectedShop] : shopList}
         filter={filter}

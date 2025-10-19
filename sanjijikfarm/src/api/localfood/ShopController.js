@@ -23,3 +23,12 @@ export const searchShops = (keyword) =>
     });
     return res.data;
   });
+
+/** lat, lng를 전달하면 가까운 매장 리스트를 반환하는 함수 */
+export const getNearbyShops = (lat, lng) =>
+  withErrorBoundary(async () => {
+    const res = await axiosInstance.get('/shops/map/nearby', {
+      params: { lat, lng },
+    });
+    return res.data;
+  });

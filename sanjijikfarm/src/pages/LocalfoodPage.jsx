@@ -35,11 +35,17 @@ export default function LocalfoodPage() {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['shops', inputValue], // 검색 keyword에 따라 캐시 분리
+    queryKey: ['shops', inputValue, filter], // 검색 keyword에 따라 캐시 분리
     queryFn: async () => {
-      const results = inputValue.trim() === '' ? await getShopList() : await searchShops(inputValue);
+      // sort에 전달할 값
+      const sortParam = filter === '거리순' ? 'distance' : 'rating';
 
-      console.log(results);
+      // 백엔드에 sort 파라미터 전달
+      const results =
+        inputValue.trim() === ''
+          ? await getShopList({ sort: sortParam })
+          : await searchShops(inputValue, { sort: sortParam });
+
       // 좌표 변환 처리
       const geocoded = await Promise.all(
         results.map(async (shop) => {

@@ -18,7 +18,7 @@ export const getShopDetail = (shopId) =>
 /** lat, lng와 전달한 키워드로 매장을 검색하는 함수 */
 export const searchShops = (keyword, lat, lng, params = {}) =>
   withErrorBoundary(async () => {
-    const res = await axiosInstance.get('/shops/map/nearby', {
+    const res = await axiosInstance.get('/shops', {
       params: { keyword, lat, lng, ...params },
     });
     return res.data;

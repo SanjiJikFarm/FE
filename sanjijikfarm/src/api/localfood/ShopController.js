@@ -1,10 +1,10 @@
 import { axiosInstance } from '../axios/axios';
 import { withErrorBoundary } from '../axios/axios';
 
-/** 전체 매장 리스트를 조회하는 함수 */
-export const getShopList = () =>
+/** lat, lng를 전달하면 전체 매장 리스트를 조회하는 함수 */
+export const getShopList = (lat, lng, params = {}) =>
   withErrorBoundary(async () => {
-    const res = await axiosInstance.get('/shops');
+    const res = await axiosInstance.get('/shops/map', { lat, lng, ...params });
     return res.data;
   });
 
@@ -15,20 +15,20 @@ export const getShopDetail = (shopId) =>
     return res.data;
   });
 
-/** 전달한 키워드로 매장을 검색하는 함수 */
-export const searchShops = (keyword) =>
+/** lat, lng와 전달한 키워드로 매장을 검색하는 함수 */
+export const searchShops = (keyword, lat, lng, params = {}) =>
   withErrorBoundary(async () => {
-    const res = await axiosInstance.get('/shops', {
-      params: { search: keyword },
+    const res = await axiosInstance.get('/shops/map/nearby', {
+      params: { keyword, lat, lng, ...params },
     });
     return res.data;
   });
 
 /** lat, lng를 전달하면 가까운 매장 리스트를 반환하는 함수 */
-export const getNearbyShops = (lat, lng) =>
+export const getNearbyShops = (lat, lng, params = {}) =>
   withErrorBoundary(async () => {
     const res = await axiosInstance.get('/shops/map/nearby', {
-      params: { lat, lng },
+      params: { lat, lng, ...params },
     });
     return res.data;
   });

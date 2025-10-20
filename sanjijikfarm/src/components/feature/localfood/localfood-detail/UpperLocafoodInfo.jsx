@@ -13,7 +13,7 @@ export default function UpperLocafoodInfo({ shop }) {
           <span className="text-main-brown text-body-2-med font-medium">{shop.avgRating?.toFixed(1)}</span>
         </div>
         <span className="text-body-2-med text-gray-7 font-medium">주소 | {shop.address}</span>
-        <span className="text-body-2-med text-gray-7 font-medium">전화 | {shop.phone}</span>
+        {/* <span className="text-body-2-med text-gray-7 font-medium">전화 | {shop.phone}</span> */}
       </div>
     </div>
   );

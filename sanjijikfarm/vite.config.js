@@ -23,4 +23,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/ocr': {
+        target: 'https://tqs0vow7qk.apigw.ntruss.com/custom/v1/ocr',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ocr/, ''),
+      },
+    },
+  },
 });
